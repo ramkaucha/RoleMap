@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./backend 
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/application-tracker
+    depends_on:
+      - db 
+    volumes:
+      - ./backend:/app 
+    command: uvicorn app.main:app --host 0.0.0.0 --reload
+  
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=application-tracker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data 
+
+volumes:
+  postgres_data: 
+
