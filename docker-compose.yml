@@ -6,7 +6,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:password@db/application-tracker
     depends_on:
-      - db 
+      db:
+        condition: service_healthy
     volumes:
       - ./backend:/app 
     command: uvicorn app.main:app --host 0.0.0.0 --reload
@@ -19,9 +20,14 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=application-tracker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d application-tracker"]
+      interval: 5s 
+      timeout: 5s 
+      retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data 
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data: 
+  postgres_data:
 

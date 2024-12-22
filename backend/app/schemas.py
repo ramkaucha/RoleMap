@@ -1,3 +1,5 @@
+# Defines Pydantic models for request/response validation
+
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
@@ -18,4 +20,4 @@ class User(UserBase):
 
 class Token(BaseModel):
     access_token: str
-    token_type = str
+    token_type: str

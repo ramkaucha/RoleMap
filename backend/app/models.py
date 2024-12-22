@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Column, Integer, String, DataTime
+# Database models/tables
+
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
 from sqlalchemy import func
 from .database import Base
 from passlib.context import CryptContext
@@ -12,7 +14,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DataTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     @classmethod
     def get_password_hash(cls, password):
