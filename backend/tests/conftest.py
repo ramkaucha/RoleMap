@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base
+from app import auth
 
 TEST_DATABASE_URL = "postgresql://user:password@db:5432/application-tracker"
 
@@ -19,3 +20,9 @@ def db(engine):
     yield
     Base.metadata.drop_all(bind=engine)
 
+@pytest.fixture(autouse=True)
+def short_token_expiry():
+    original_expire = auth.ACCESS_TOKEN_EXPIRE_MINUTES
+    auth.ACCESS_TOKEN_EXPIRE_MINUTES = 0.083 # 5 seconds
+    yield
+    auth.ACCESS_TOKEN_EXPIRE_MINUTES = original_expire
