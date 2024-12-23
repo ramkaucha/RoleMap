@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from . import models, schemas, auth
+from . import models, schemas, auth, analytics
 from .database import engine, get_db
 from fastapi import Query
 from typing import List
@@ -169,3 +169,17 @@ def delete_application(
     db.commit()
 
     return None
+
+@app.get("/analytics/summary")
+def get_analytics_summary(current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    return {
+        "total_applications": db.query(models.Application).filter(models.Application.id == current_user.id).count(),
+        "active_applications": db.query(models.Application).filter(
+            models.Application.user_id == current_user.id,
+            models.Application.status.in_(["APPLIED", "INTERVIEWING", "ONLINE_ASSESSMENT"])
+        ).count(),
+        "success_rate": analytics.calculate_success_rate(db, current_user.id),
+        "applications_this_month": analytics.applications_this_month(db, current_user.id),
+        "most_applied_category": analytics.get_most_common(db, current_user.id, "category"),
+        "most_applied_location": analytics.get_most_common(db, current_user.id, "location")
+    }
