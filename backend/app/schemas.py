@@ -4,10 +4,39 @@ from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
 import re
+from enum import Enum
+
+class ApplicationStatus(str, Enum):
+    APPLIED = 'applied'
+    ONLINE_ASSESSMENT = "online assessment"
+    INTERVIEWING = "interviewing"
+    REJECTED = "rejected"
+    GHOSTED = "ghosted"
 
 class UserBase(BaseModel):
     email: EmailStr
 
+class ApplicationBase(BaseModel):
+    company: str
+    role: str
+    status: str
+    location: str
+    link: str
+    comments: Optional[str] = None
+    category: str
+    date_applied: datetime
+
+    # @field_validator('date_applied')
+    # @classmethod
+    # def validate_date(cls, v):
+    #     now = datetime.now(pytz.UTC)
+    #     if v >= now:
+    #         raise ValueError('Applications data cannot be in the future')
+        
+    #     return v
+
+class ApplicationCreate(ApplicationBase):
+    pass
 
 class UserCreate(UserBase):
     password: str
@@ -33,10 +62,20 @@ class UserCreate(UserBase):
 
         return v
 
+class Application(ApplicationBase):
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class User(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+    applications: list[Application] = []
 
     class Config:
         from_attributes = True
@@ -44,3 +83,11 @@ class User(UserBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class ApplicationList(BaseModel):
+    items: list[Application]
+    total: int
+    has_more: bool
+
+    class Config:
+        from_attributes = True

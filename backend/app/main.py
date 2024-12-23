@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from . import models, schemas, auth
 from .database import engine, get_db
+from fastapi import Query
+from typing import List
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -57,3 +59,56 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+@app.post("/applications", response_model=schemas.Application)
+def create_application(
+    application: schemas.ApplicationCreate, 
+    current_user: schemas.User,
+    db: Session = Depends(get_db)
+):
+    existing_application = db.query(models.Application).filter(
+        models.Application.user_id == current_user.id,
+        models.Application.company == application.company,
+        models.Application.role == application.role
+    ).first()
+
+    if existing_application:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Warning: You may have already applied for this role at this company"
+        )
+    
+    db_application = models.Application(
+        **application.dict(),
+        user_id=current_user.id
+    )
+
+    db.add(db_application)
+    db.commit()
+    db.refresh(db_application)
+
+    return db_application
+
+@app.get("/applications", response_model=schemas.ApplicationList)
+def get_application(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=0),
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    applications = db.query(models.Application)\
+        .filter(models.Application.user_id == current_user.id)\
+        .order_by(models.Application.date_applied.desc())\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+    
+    total_count = db.query(models.Application)\
+        .filter(models.Application.user_id == current_user.id)\
+        .count()
+    
+    return {
+        "items": applications,
+        "total": total_count,
+        "has_more": total_count > (skip + limit)
+    }
