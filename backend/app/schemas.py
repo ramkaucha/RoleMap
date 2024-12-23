@@ -13,8 +13,35 @@ class ApplicationStatus(str, Enum):
     REJECTED = "rejected"
     GHOSTED = "ghosted"
 
+class ProfilePictureType(str, Enum):
+    LOCAL = 'local',
+    URL = 'url',
+    S3 = 's3'
+
 class UserBase(BaseModel):
     email: EmailStr
+    first_name: str
+    last_name: str
+    profile_picture: Optional[str] = None
+    profile_picture_type: Optional[ProfilePictureType] = None
+
+    @field_validator('profile_picture')
+    @classmethod
+    def validate_profile_picture(cls, v: Optional[str], values: dict) -> Optional[str]:
+        if v is None:
+            return v
+        
+        pic_type = values.get('profile_picture_type')
+        if pic_type == ProfilePictureType.URL:
+            if not v.startswith('http://', 'https://'):
+                raise ValueError('URL must start with http:// or https://')
+        
+        allowed_extensions = { '.jpg', '.jpeg', '.png', '.gif' }
+        file_ext = v.lower().split('.')[-1]
+        if not any(v.lower().endswith(ext) for ext in allowed_extensions):
+            raise ValueError(f'File must be one of: {", ".join(allowed_extensions)}')
+
+        return v
 
 class ApplicationBase(BaseModel):
     company: str

@@ -32,7 +32,7 @@ def client(db, TestingSessionLocal):
 # Helper function to register a user to database
 @pytest.fixture
 def registered_user(client):
-    user_data = { "email": "test@example.com", "password": "StrongPassword123!@#" }
+    user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": "Bob", "last_name": "Kazumi"}
     response = client.post('/register', json=user_data)
     assert response.status_code == 200
 

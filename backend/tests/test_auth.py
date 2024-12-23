@@ -21,7 +21,7 @@ def client(db, TestingSessionLocal):
 # Helper function to register a user to database
 @pytest.fixture
 def registered_user(client):
-    user_data = { "email": "test@example.com", "password": "StrongPassword123!@#" }
+    user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": 'Bob', "last_name": "Kuzami"}
     response = client.post('register', json=user_data)
     assert response.status_code == 200
 
@@ -31,12 +31,14 @@ def registered_user(client):
 def test_create_user(client):
     response = client.post(
         "/register",
-        json={"email": "test@example.com", "password": "StrongPassword123!@#"}
+        json={"email": "test@example.com", "password": "StrongPassword123!@#", "first_name": "Bob", "last_name": "Kuzami"}
     )
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "test@example.com"
     assert "password" not in data
+    assert data['first_name'] == 'Bob'
+    assert data['last_name'] == 'Kuzami'
 
 # Email already registered
 def test_register_duplicate(client, registered_user):
@@ -44,7 +46,9 @@ def test_register_duplicate(client, registered_user):
         '/register',
         json={
             "email": "test@example.com",
-            "password": "StrongPassword1231!@"
+            "password": "StrongPassword1231!@",
+            "first_name": "Bob",
+            "last_name": "Kuzami"
         }
     )
 
@@ -95,7 +99,9 @@ def test_register_weak_password(client):
         "/register",
         json={
             "email": "test@example.com",
-            "password": "weakpassword123"
+            "password": "weakpassword123",
+            "first_name": "Bob",
+            "last_name": "Kazumi"
         }
     )
 
@@ -108,7 +114,9 @@ def test_register_empty_password(client):
         "/register",
         json={
             "email": "test@example.com",
-            "password": ""
+            "password": "",
+            "first_name": "Bob",
+            "last_name": "Kazumi"
         }
     )
 
