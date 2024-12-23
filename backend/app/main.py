@@ -90,7 +90,7 @@ def create_application(
     return db_application
 
 @app.get("/applications", response_model=schemas.ApplicationList)
-def get_application(
+def get_application_list(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=0),
     current_user: models.User = Depends(auth.get_current_user),
@@ -112,3 +112,60 @@ def get_application(
         "total": total_count,
         "has_more": total_count > (skip + limit)
     }
+
+@app.get("/applications/{id}", response_model=schemas.Application)
+def get_application(id: int, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    application = db.query(models.Application)\
+        .filter(
+            models.Application.user_id == current_user.id,
+            models.Application.id == id
+        ).first()
+    
+    if application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    return application
+
+@app.put('/applications/{id}', response_model=schemas.Application)
+def update_application(
+    id: int,
+    application: schemas.ApplicationCreate,
+    current_user: models.User = Depends(auth.get_current_user), 
+    db: Session = Depends(get_db)
+):
+    db_application = db.query(models.Application)\
+        .filter(
+            models.Application.user_id == current_user.id,
+            models.Application.id == id
+        ).first()
+
+    if db_application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    for key, value in application.model_dump().items():
+        setattr(db_application, key, value)
+    
+    db.commit()
+    db.refresh(db_application)
+
+    return db_application
+
+@app.delete('/applications/{id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_application(
+    id: int,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_application = db.query(models.Application)\
+        .filter(
+            models.Application.user_id == current_user.id,
+            models.Application.id == id
+        ).first()
+
+    if db_application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    db.delete(db_application)
+    db.commit()
+
+    return None

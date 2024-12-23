@@ -165,3 +165,120 @@ def test_get_applications(client, logged_in_user):
     assert len(data['items']) == 10
     assert data['total'] == 60
     assert data['has_more'] == False
+
+# testing route '/applications/{id}
+def test_get_single_application(client, logged_in_user):
+    response = client.get(
+        '/users/me',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    user_data = response.json()
+
+    response = client.post(
+        '/applications',
+        json={
+            "application": EXAMPLE_APPLICATION,
+            "current_user": user_data
+        },
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+
+    assert response.status_code == 200
+    application_id = response.json()['id']
+
+    response = client.get(
+        f'/applications/{application_id}',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data['company'] == EXAMPLE_APPLICATION['company']
+    assert data['role'] == EXAMPLE_APPLICATION['role']
+    assert data['status'] == EXAMPLE_APPLICATION['status']
+    assert data['link'] == EXAMPLE_APPLICATION['link']
+    assert data['comments'] == EXAMPLE_APPLICATION['comments']
+    assert data['category'] == EXAMPLE_APPLICATION['category']
+    
+# testing updating application
+def test_update_application(client, logged_in_user):
+    response = client.get(
+        '/users/me',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    user_data = response.json()
+
+    response = client.post(
+        '/applications',
+        json={
+            "application": EXAMPLE_APPLICATION,
+            "current_user": user_data
+        },
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    application_id = response.json()['id']
+
+    EXAMPLE_APPLICATION['company'] = 'Another Company'
+
+    # Updating now
+    response = client.put(
+        f'/applications/{application_id}',
+        json=EXAMPLE_APPLICATION,
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data['company'] == 'Another Company'
+
+    # FETCHING
+    response = client.get(
+        f'/applications/{application_id}',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data['company'] == 'Another Company'
+    assert data['company'] == EXAMPLE_APPLICATION['company']
+    assert data['role'] == EXAMPLE_APPLICATION['role']
+    assert data['status'] == EXAMPLE_APPLICATION['status']
+    assert data['link'] == EXAMPLE_APPLICATION['link']
+    assert data['comments'] == EXAMPLE_APPLICATION['comments']
+    assert data['category'] == EXAMPLE_APPLICATION['category']
+
+# testing deleting an application
+def test_delete_application(client, logged_in_user):
+    response = client.get(
+        '/users/me',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    user_data = response.json()
+
+    response = client.post(
+        '/applications',
+        json={
+            "application": EXAMPLE_APPLICATION,
+            "current_user": user_data
+        },
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+    assert response.status_code == 200
+    application_id = response.json()['id']
+
+    # deleting
+    response = client.delete(
+        f'/applications/{application_id}',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+
+    assert response.status_code == 204
+
+    response = client.get(
+        f'/applications/{application_id}',
+        headers={"Authorization": f"Bearer {logged_in_user['access_token']}"}
+    )
+
+    assert response.status_code == 404
