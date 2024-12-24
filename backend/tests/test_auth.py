@@ -236,3 +236,47 @@ def test_read_users_me(client, registered_user):
     assert registered_user['password'] not in user_data
     assert user_data['is_active'] == True
     assert 'created_at' in user_data
+
+# # Updating profile password
+# def test_update_password(client, registered_user):
+#     response = client.post(
+#         '/token',
+#         data={
+#             "username": registered_user['email'],
+#             "password": registered_user["password"]
+#         }
+#     )
+#     assert response.status_code == 200
+#     token = response.json()['access_token']
+
+#     response = client.patch(
+#         '/users/me',
+#         json={
+#             "user_update": {
+#                 'current_password': registered_user['password'],
+#                 'new_password': 'StrongPassword212!'
+#             }
+#         },
+#         headers={"Authorization": f"Bearer {token}"}
+#     )
+
+#     print(f"{response.json()}")
+
+#     assert response.status_code == 200
+
+    # if response.status_code != 200:
+    #     print(f"Error response: {response.json()}")
+
+    # assert response.status_code == 200
+
+    # response = client.post(
+    #     '/token',
+    #     data={
+    #         'username': registered_user['email'],
+    #         "password": 'StrongPassword212!'
+    #     }
+    # )
+
+    # assert response.status_code == 200
+
+

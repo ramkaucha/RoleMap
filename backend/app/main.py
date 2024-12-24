@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -6,8 +6,10 @@ from datetime import timedelta
 from . import models, schemas, auth, analytics
 from .database import engine, get_db
 from fastapi import Query
-from typing import List
-
+from typing import List, Optional
+import os
+from werkzeug.utils import secure_filename
+1
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -59,6 +61,94 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+@app.patch("/users/me")
+async def update_user_profile(
+    user_update: Optional[schemas.UserUpdate] = Body(..., embed=True), 
+    profile_picture: Optional[UploadFile] = File(None),
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    
+    print(f'{user_update.current_password}')
+    print(f'{user_update.new_password}')
+    
+    updates = {}
+    
+    if user_update:
+        if user_update.first_name:
+            updates["first_name"] = user_update.first_name
+        if user_update.last_name:
+            updates['last_name'] = user_update.last_name
+
+        if user_update.new_password:
+            if not user_update.current_password:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Current password is required to set a new password"
+                )
+
+            if current_user and not current_user.verify_password(user_update.current_password):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Incorrect current password"
+                )
+            
+            updates['hashed_password'] = current_user.get_password_hash(user_update.new_password)
+    
+    if profile_picture:
+        if not profile_picture.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=400,
+                detail='File must be an image'
+            )
+        
+        upload_dir = f"uploads/profile_pictures/{current_user.id}"
+        os.makedirs(upload_dir, exist_ok=True)
+
+        filename = secure_filename(profile_picture.filename)
+        file_path = f"{upload_dir}/{filename}"
+
+        try:
+            contents = await profile_picture.read()
+            with open(file_path, "wb") as f:
+                f.write(contents)
+
+            updates["profile_picture"] = file_path
+            updates["profile_picture_type"] = "local"
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail="Could not upload file"
+            )
+    
+    if not updates:
+        raise HTTPException(
+            status_code=400,
+            detail="No updates provided"
+        )
+    
+    # updating to database
+    try:
+        for key, value in updates.items():
+            setattr(current_user, key, value)
+        db.commit()
+
+        return {
+            "message": "Profile update sucessfully",
+            "user": {
+                "email": current_user.email,
+                "first_name": current_user.first_name,
+                "last_name": current_user.last_name,
+                "profile_picture": current_user.profile_picture
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update profile"
+        )
 
 @app.post("/applications", response_model=schemas.Application)
 def create_application(
@@ -183,3 +273,4 @@ def get_analytics_summary(current_user: models.User = Depends(auth.get_current_u
         "most_applied_category": analytics.get_most_common(db, current_user.id, "category"),
         "most_applied_location": analytics.get_most_common(db, current_user.id, "location")
     }
+

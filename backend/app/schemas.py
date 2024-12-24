@@ -6,6 +6,12 @@ from datetime import datetime
 import re
 from enum import Enum
 
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+
 class ApplicationStatus(str, Enum):
     APPLIED = 'applied'
     ONLINE_ASSESSMENT = "online assessment"
