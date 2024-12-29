@@ -9,7 +9,7 @@ from fastapi import Query
 from typing import List, Optional
 import os
 from werkzeug.utils import secure_filename
-1
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -62,66 +62,94 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
 
-@app.patch("/users/me")
-async def update_user_profile(
-    user_update: Optional[schemas.UserUpdate] = Body(..., embed=True), 
-    profile_picture: Optional[UploadFile] = File(None),
+@app.patch("/users/me/profile")
+async def update_user_profie(
+    user_update: schemas.UserUpdate,
     current_user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(get_db)
 ):
-    
-    print(f'{user_update.current_password}')
-    print(f'{user_update.new_password}')
-    
     updates = {}
-    
-    if user_update:
-        if user_update.first_name:
-            updates["first_name"] = user_update.first_name
-        if user_update.last_name:
-            updates['last_name'] = user_update.last_name
 
-        if user_update.new_password:
-            if not user_update.current_password:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Current password is required to set a new password"
-                )
-
-            if current_user and not current_user.verify_password(user_update.current_password):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Incorrect current password"
-                )
-            
-            updates['hashed_password'] = current_user.get_password_hash(user_update.new_password)
+    if user_update.first_name:
+        updates["first_name"] = user_update.first_name
+    if user_update.last_name:
+        updates["last_name"] = user_update.last_name
     
-    if profile_picture:
-        if not profile_picture.content_type.startswith('image/'):
+    if user_update.new_password:
+        if not user_update.current_password:
             raise HTTPException(
                 status_code=400,
-                detail='File must be an image'
+                detail="Current password is required to set the new password"
             )
         
-        upload_dir = f"uploads/profile_pictures/{current_user.id}"
-        os.makedirs(upload_dir, exist_ok=True)
-
-        filename = secure_filename(profile_picture.filename)
-        file_path = f"{upload_dir}/{filename}"
-
-        try:
-            contents = await profile_picture.read()
-            with open(file_path, "wb") as f:
-                f.write(contents)
-
-            updates["profile_picture"] = file_path
-            updates["profile_picture_type"] = "local"
-        except Exception as e:
+        if current_user and not current_user.verify_password(user_update.current_password):
             raise HTTPException(
-                status_code=500,
-                detail="Could not upload file"
+                status_code=400,
+                detail="Incorrect current password"
             )
+        
+        updates['hashed_password'] = current_user.get_password_hash(user_update.new_password)
     
+    if not updates:
+        raise HTTPException(
+            status_code=400,
+            detail="No updates provided"
+        )
+    
+    try:
+        for key, value in updates.items():
+            setattr(current_user, key, value)
+        
+        db.commit()
+    
+        return {
+            "message": "Profile updated successfully",
+            "user": {
+                "email": current_user.email,
+                "first_name": current_user.first_name,
+                "last_name": current_user.last_name,
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not update profile: {e}"
+        )
+    
+@app.patch("/users/me/profile-picture")
+async def update_user_profile_picture(
+    profile_picture: UploadFile,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    updates = {}    
+
+    if not profile_picture.content_type.startswith('image/'):
+        raise HTTPException(
+            status_code=400,
+            detail='File must be an image'
+        )
+    
+    upload_dir = f"uploads/profile_pictures/{current_user.id}"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    filename = secure_filename(profile_picture.filename)
+    file_path = f"{upload_dir}/{filename}"
+
+    try:
+        contents = await profile_picture.read()
+        with open(file_path, "wb") as f:
+            f.write(contents)
+
+        updates["profile_picture"] = file_path
+        updates["profile_picture_type"] = "local"
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not upload file"
+        )
+
     if not updates:
         raise HTTPException(
             status_code=400,
@@ -135,7 +163,7 @@ async def update_user_profile(
         db.commit()
 
         return {
-            "message": "Profile update sucessfully",
+            "message": "Profile update successfully",
             "user": {
                 "email": current_user.email,
                 "first_name": current_user.first_name,

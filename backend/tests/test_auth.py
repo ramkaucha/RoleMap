@@ -238,45 +238,112 @@ def test_read_users_me(client, registered_user):
     assert 'created_at' in user_data
 
 # # Updating profile password
-# def test_update_password(client, registered_user):
-#     response = client.post(
-#         '/token',
-#         data={
-#             "username": registered_user['email'],
-#             "password": registered_user["password"]
-#         }
-#     )
-#     assert response.status_code == 200
-#     token = response.json()['access_token']
+def test_update_password(client, registered_user):
+    response = client.post(
+        '/token',
+        data={
+            "username": registered_user['email'],
+            "password": registered_user["password"]
+        }
+    )
+    assert response.status_code == 200
+    token = response.json()['access_token']
 
-#     response = client.patch(
-#         '/users/me',
-#         json={
-#             "user_update": {
-#                 'current_password': registered_user['password'],
-#                 'new_password': 'StrongPassword212!'
-#             }
-#         },
-#         headers={"Authorization": f"Bearer {token}"}
-#     )
+    new_password = 'StrongPassword212!'
 
-#     print(f"{response.json()}")
+    response = client.patch(
+        '/users/me/profile',
+        json={
+            'current_password': registered_user['password'],
+            'new_password': new_password
+        },
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+    )
 
-#     assert response.status_code == 200
+    assert response.status_code == 200
 
-    # if response.status_code != 200:
-    #     print(f"Error response: {response.json()}")
+    response = client.post(
+        '/token',
+        data={
+            'username': registered_user['email'],
+            'password': registered_user["password"]
+        }
+    )
 
-    # assert response.status_code == 200
+    assert response.status_code != 200
 
-    # response = client.post(
-    #     '/token',
-    #     data={
-    #         'username': registered_user['email'],
-    #         "password": 'StrongPassword212!'
-    #     }
-    # )
+    response = client.post(
+        '/token',
+        data={
+            'username': registered_user['email'],
+            'password': new_password
+        }
+    )
 
-    # assert response.status_code == 200
+    assert response.status_code == 200
 
+# Updating profile first name and last name.
+def test_update_profile(client, registered_user):
+    response = client.post(
+        '/token',
+        data={
+            "username": registered_user['email'],
+            "password": registered_user['password']
+        }
+    )
 
+    assert response.status_code == 200
+    token = response.json()['access_token']
+
+    new_first_name = 'newfirst'
+    new_last_name = 'newlast'
+
+    response = client.patch(
+        '/users/me/profile',
+        json={
+            'first_name': new_first_name,
+            'last_name': new_last_name
+        },
+        headers={
+            "Authorization": f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 200
+    user_data = response.json()
+
+    assert user_data['user']['first_name'] == new_first_name
+    assert user_data['user']['last_name'] == new_last_name
+
+def test_update_profile_picture(client, registered_user):
+    response = client.post(
+        '/token',
+        data={
+            "username": registered_user['email'],
+            "password": registered_user['password']
+        }
+    )
+
+    assert response.status_code == 200
+    token = response.json()['access_token']
+
+    test_image = 'tests/assets/example-profile.jpg'
+
+    with open(test_image, "rb") as f:
+        files = {
+            "profile_picture": ("example-profile.jpg", f, "image/jpeg")
+        }
+        response = client.patch(
+            '/users/me/profile-picture',
+            files=files,
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
+        )
+    
+    assert response.status_code == 200
+    assert response.json()["message"] == "Profile update successfully"
+    assert response.json()["user"]["profile_picture"] is not None
