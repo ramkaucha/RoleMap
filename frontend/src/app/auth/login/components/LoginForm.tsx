@@ -2,17 +2,16 @@
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import EnhancedInput from "@/app/components/enhanced-input";
-import { RegisterFormProps } from "@/app/components/interfaces";
+
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/app/components/interfaces";
 
-export default function RegisterForm({ setError }: RegisterFormProps) {
+export default function LoginForm() {
   const router = useRouter();
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
@@ -40,12 +39,8 @@ export default function RegisterForm({ setError }: RegisterFormProps) {
     onSuccess: () => {
       router.push("/auth/login");
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.detail || error.message || "An error occurred during registration.";
-      setError(errorMessage);
-
-      throw error;
+    onError: (error) => {
+      console.error(error);
     },
   });
 

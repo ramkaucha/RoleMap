@@ -26,3 +26,7 @@ export enum ProfilePictureType {
   URL = "url",
   S3 = "s3",
 }
+
+export interface RegisterFormProps {
+  setError: (error: string) => void;
+}
