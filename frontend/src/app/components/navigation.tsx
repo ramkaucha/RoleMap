@@ -41,8 +41,7 @@ export default function Navigation({ isAuthenticated, currentPath = "/" }: Navig
     <motion.nav
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      // whileTap={{ scale: 0.95 }}
-      className="px-5 flex justify-between items-center"
+      className="flex justify-between items-center"
     >
       <div className="py-2 hidden sm:block flex-col">
         <a href="#" className="text-2xl font-bold flex flex-row" onClick={() => router.push("/")}>

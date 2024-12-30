@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/navigation";
 import { getServerSession } from "next-auth";
-import { ThemeProvider } from "./components/theme-provider";
+import PageWrapper from "./components/PageWrapper";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,20 +30,15 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div
-            className={`mx-auto px-5`}
-            // ${session === null ? "sm:w-[50%]" : " "}`}
-          >
-            <Navigation isAuthenticated={session !== null} />
-            {children}
+        <Providers>
+          <div className="px-12 flex flex-col min-h-screen">
+            <div className="container mx-auto flex-1 flex flex-col">
+              <Navigation isAuthenticated={session !== null} />
+              <PageWrapper>{children}</PageWrapper>
+            </div>
+            <h1>Footer.</h1>
           </div>
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

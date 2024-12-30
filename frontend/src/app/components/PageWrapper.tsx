@@ -27,7 +27,13 @@ const pageVariants = {
 
 export default function PageWrapper({ children }: { children: ReactNode }) {
   return (
-    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants}>
+    <motion.div
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      className="flex-1 flex flex-col"
+    >
       {children}
     </motion.div>
   );
