@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { NavigationProps, PageItem } from "./interfaces";
@@ -8,12 +8,16 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSideBar } from "./app-sidebar";
-
-const MotionButton = motion(Button);
+import { FileUser } from "lucide-react";
+import { ThemeToggle } from "./theme-toggle";
 
 export default function Navigation({ isAuthenticated, currentPath = "/" }: NavigationProps) {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [pages, setPages] = useState(() =>
     loggedOutButtons.map((page) => ({
@@ -34,33 +38,35 @@ export default function Navigation({ isAuthenticated, currentPath = "/" }: Navig
   };
 
   return (
-    <nav className="flex justify-between items-center">
-      <SidebarProvider>
-        <AppSideBar />
-        <SidebarTrigger />
-      </SidebarProvider>
-      {/* <div className="py-2 hidden sm:block">
-        <a href="#" className="text-2xl font-bold" onClick={() => router.push("/")}>
+    <motion.nav
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      // whileTap={{ scale: 0.95 }}
+      className="px-5 flex justify-between items-center"
+    >
+      <div className="py-2 hidden sm:block flex-col">
+        <a href="#" className="text-2xl font-bold flex flex-row" onClick={() => router.push("/")}>
+          <FileUser className="mt-1 mr-1" />
           AT
         </a>
-      </div> */}
-      <div className="py-2 hidden sm:block"></div>
+      </div>
       <div className="flex md:space-x-2">
         {pages.map((item) => (
-          <MotionButton
+          <Button
+            size="sm"
             variant={item.variant}
             key={item.name}
             onClick={() => handleClick(item)}
             aria-current={item.current ? "page" : undefined}
-            className="text-md px-4 my-4 leading-none font-bold"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileTap={{ scale: 0.95 }}
+            className="my-4 leading-none font-semibold"
           >
             {item.name}
-          </MotionButton>
+          </Button>
         ))}
+        <div className="my-4 ml-2">
+          <ThemeToggle />
+        </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 }
