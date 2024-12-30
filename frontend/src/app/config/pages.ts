@@ -1,32 +1,34 @@
 import { PageItem } from "../components/interfaces";
 
-export const loggedInPages: PageItem[] = [
-  {
-    name: "dashboard",
-    route: "/dashboard",
-    current: false,
-  },
-  {
-    name: "tracker",
-    route: "/track",
-    current: false,
-  },
-  {
-    name: "profile",
-    route: "/profile",
-    current: false,
-  },
-];
+// export const loggedInPages: PageItem[] = [
+//   {
+//     name: "dashboard",
+//     route: "/dashboard",
+//     current: false,
+//   },
+//   {
+//     name: "tracker",
+//     route: "/track",
+//     current: false,
+//   },
+//   {
+//     name: "profile",
+//     route: "/profile",
+//     current: false,
+//   },
+// ];
 
-export const loggedOutPages: PageItem[] = [
+export const loggedOutButtons: PageItem[] = [
   {
-    name: "register",
+    name: "Register",
     route: "/auth/register",
     current: false,
+    variant: "default",
   },
   {
-    name: "login",
+    name: "Login",
     route: "/auth/login",
     current: false,
+    variant: "link",
   },
 ];
