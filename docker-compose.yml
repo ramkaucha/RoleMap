@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend 
+    build: ./backend
     ports:
       - "8000:8000"
     environment:
@@ -9,9 +9,9 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./backend:/app 
+      - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --reload
-  
+
   db:
     image: postgres:15
     ports:
@@ -22,12 +22,26 @@ services:
       - POSTGRES_DB=application-tracker
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d application-tracker"]
-      interval: 5s 
-      timeout: 5s 
+      interval: 5s
+      timeout: 5s
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
-
