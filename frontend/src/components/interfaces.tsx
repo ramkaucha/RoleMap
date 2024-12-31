@@ -21,6 +21,11 @@ export interface RegisterFormData {
   profile_picture_type?: ProfilePictureType | null;
 }
 
+export interface LoginFormData {
+  username: string;
+  password: string;
+}
+
 export enum ProfilePictureType {
   LOCAL = "local",
   URL = "url",
