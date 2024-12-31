@@ -4,13 +4,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import EnhancedInput from "@/app/components/enhanced-input";
-import { RegisterFormProps } from "@/app/components/interfaces";
+import EnhancedInput from "@/components/enhanced-input";
+import { RegisterFormProps } from "@/components/interfaces";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { RegisterFormData } from "@/app/components/interfaces";
+import { RegisterFormData } from "@/components/interfaces";
 
 export default function RegisterForm({ setError }: RegisterFormProps) {
   const router = useRouter();

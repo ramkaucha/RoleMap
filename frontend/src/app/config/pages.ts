@@ -1,4 +1,4 @@
-import { PageItem } from "../components/interfaces";
+import { PageItem } from "../../components/interfaces";
 
 // export const loggedInPages: PageItem[] = [
 //   {

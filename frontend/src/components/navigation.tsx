@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { NavigationProps, PageItem } from "./interfaces";
-import { loggedOutButtons } from "../config/pages";
+import { loggedOutButtons } from "../app/config/pages";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSideBar } from "./app-sidebar";
-import { FileUser } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import Logo from "./Logo";
 
 export default function Navigation({ isAuthenticated, currentPath = "/" }: NavigationProps) {
   const router = useRouter();
@@ -44,10 +44,13 @@ export default function Navigation({ isAuthenticated, currentPath = "/" }: Navig
       className="flex justify-between items-center"
     >
       <div className="py-2 hidden sm:block flex-col">
-        <a href="#" className="text-2xl font-bold flex flex-row" onClick={() => router.push("/")}>
-          <FileUser className="mt-1 mr-1" />
-          AT
-        </a>
+        <Logo />
+        {/* <Image
+          src={Logo}
+          alt="Job Tracker Logo"
+          className="h-12 w-12"
+          onClick={() => router.push("/")}
+        /> */}
       </div>
       <div className="flex md:space-x-2">
         {pages.map((item) => (

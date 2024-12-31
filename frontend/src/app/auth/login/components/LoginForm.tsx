@@ -3,13 +3,13 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import EnhancedInput from "@/app/components/enhanced-input";
+import EnhancedInput from "@/components/enhanced-input";
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { RegisterFormData } from "@/app/components/interfaces";
+import { RegisterFormData } from "@/components/interfaces";
 
 export default function LoginForm() {
   const router = useRouter();
