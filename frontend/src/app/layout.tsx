@@ -5,6 +5,7 @@ import Navigation from "../components/navigation";
 import { getServerSession } from "next-auth";
 import PageWrapper from "../components/PageWrapper";
 import Providers from "./providers";
+import Footer from "@/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,7 @@ export default async function RootLayout({
               <Navigation isAuthenticated={session !== null} />
               <PageWrapper>{children}</PageWrapper>
             </div>
-            <h1>Footer.</h1>
+            <Footer />
           </div>
         </Providers>
       </body>

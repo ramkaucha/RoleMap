@@ -89,29 +89,31 @@ export default function RegisterForm() {
           <CardDescription>Create your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="first-name">First Name</Label>
-            <EnhancedInput
-              id="first-name"
-              name="first_name"
-              type="text"
-              required
-              placeholder="John"
-              value={formData.first_name}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="last-name">Last Name</Label>
-            <EnhancedInput
-              id="last-name"
-              name="last_name"
-              type="text"
-              required
-              placeholder="Doe"
-              value={formData.last_name}
-              onChange={handleChange}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="first-name">First Name</Label>
+              <EnhancedInput
+                id="first-name"
+                name="first_name"
+                type="text"
+                required
+                placeholder="John"
+                value={formData.first_name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="last-name">Last Name</Label>
+              <EnhancedInput
+                id="last-name"
+                name="last_name"
+                type="text"
+                required
+                placeholder="Doe"
+                value={formData.last_name}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
