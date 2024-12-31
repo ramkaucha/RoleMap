@@ -6,11 +6,9 @@ import ErrorAlert from "@/components/error-alert";
 import { useState } from "react";
 
 export default function RegisterPage() {
-  const [error, setError] = useState<string | null>(null);
   return (
     <PageWrapper>
-      {error && <ErrorAlert message={error} />}
-      <RegisterForm setError={setError} />
+      <RegisterForm />
     </PageWrapper>
   );
 }

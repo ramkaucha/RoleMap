@@ -11,8 +11,9 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/components/interfaces";
+import ErrorAlert from "@/components/error-alert";
 
-export default function RegisterForm({ setError }: RegisterFormProps) {
+export default function RegisterForm() {
   const router = useRouter();
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
@@ -25,6 +26,7 @@ export default function RegisterForm({ setError }: RegisterFormProps) {
 
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
@@ -41,10 +43,13 @@ export default function RegisterForm({ setError }: RegisterFormProps) {
       router.push("/auth/login");
     },
     onError: (error: any) => {
-      const errorMessage =
+      let errorMessage =
         error.response?.data?.detail || error.message || "An error occurred during registration.";
-      setError(errorMessage);
+      if (errorMessage.length > 1) {
+        errorMessage = "An error occurred during registration.";
+      }
 
+      setError(errorMessage);
       throw error;
     },
   });
@@ -76,7 +81,8 @@ export default function RegisterForm({ setError }: RegisterFormProps) {
   };
 
   return (
-    <div className="flex-grow flex justify-center items-center">
+    <div className="flex-grow flex justify-center items-center flex-col">
+      {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-3xl">Register</CardTitle>
