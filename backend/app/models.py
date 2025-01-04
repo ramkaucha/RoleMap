@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship
 from .database import Base
 from passlib.context import CryptContext
 from . import schemas
+import secrets
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -19,6 +20,8 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True, unique=True)
 
     applications = relationship("Application", back_populates="user")
 
@@ -28,6 +31,10 @@ class User(Base):
 
     def verify_password(self, plain_password):
         return pwd_context.verify(plain_password, self.hashed_password)
+    
+    @staticmethod
+    def generate_verification_token():
+        return secrets.token_urlsafe(32)
 
 class Application(Base):
     __tablename__ = "applications"

@@ -6,6 +6,9 @@ from datetime import datetime
 import re
 from enum import Enum
 
+class EmailVerification(BaseModel):
+    token: str
+
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -59,15 +62,6 @@ class ApplicationBase(BaseModel):
     category: str
     date_applied: datetime
 
-    # @field_validator('date_applied')
-    # @classmethod
-    # def validate_date(cls, v):
-    #     now = datetime.now(pytz.UTC)
-    #     if v >= now:
-    #         raise ValueError('Applications data cannot be in the future')
-        
-    #     return v
-
 class ApplicationCreate(ApplicationBase):
     pass
 
@@ -109,6 +103,8 @@ class User(UserBase):
     is_active: bool
     created_at: datetime
     applications: list[Application] = []
+    is_verified: bool
+    verification_token: Optional[str] = None
 
     class Config:
         from_attributes = True

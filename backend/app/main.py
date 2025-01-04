@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, Body
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from fastapi import Query
 from typing import List, Optional
 import os
 from werkzeug.utils import secure_filename
+from .utils.email import send_verification_email
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -24,20 +25,51 @@ app.add_middleware(
 )
 
 @app.post("/register", response_model=schemas.User)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+async def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    verification_token = models.User.generate_verification_token()
 
     hashed_password = models.User.get_password_hash(user.password)
 
-    db_user = models.User(email=user.email, hashed_password=hashed_password, first_name=user.first_name, last_name=user.last_name)
+    db_user = models.User(
+        email=user.email, 
+        hashed_password=hashed_password, 
+        first_name=user.first_name, 
+        last_name=user.last_name, 
+        verification_token=verification_token, 
+        is_verified=False
+    )
+
 
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
+    background_tasks.add_task(
+        send_verification_email,
+        email=user.email,
+        token=verification_token
+    )
+
     return db_user
+
+@app.get("/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.verification_token == token).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Verification token is invalid")
+    
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+
+    return {
+        "message": "Email verified successfully"
+    }
 
 @app.post('/token', response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -49,6 +81,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please verify your email before logging in",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
         data={'sub': user.email}, expires_delta=access_token_expires
