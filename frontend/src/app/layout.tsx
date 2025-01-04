@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "../components/navigation";
-import { getServerSession } from "next-auth";
 import PageWrapper from "../components/PageWrapper";
 import Providers from "./providers";
 import Footer from "@/components/footer";
@@ -27,14 +26,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <div className="px-12 flex flex-col min-h-screen">
             <div className="container mx-auto flex-1 flex flex-col">
-              <Navigation isAuthenticated={session !== null} />
+              <Navigation />
               <PageWrapper>{children}</PageWrapper>
             </div>
             <Footer />
