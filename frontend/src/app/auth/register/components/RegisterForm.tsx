@@ -40,7 +40,9 @@ export default function RegisterForm() {
       return response.data;
     },
     onSuccess: () => {
-      router.push("/auth/login");
+      sessionStorage.setItem("registration_email", formData.email);
+      sessionStorage.setItem("registration_timestamp", Date.now().toString());
+      router.push(`/auth/verify?email=${encodeURIComponent(formData.email)}`);
     },
     onError: (error: any) => {
       let errorMessage =

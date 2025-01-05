@@ -56,6 +56,32 @@ async def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, 
 
     return db_user
 
+@app.post("/resend-verification")
+def resend_verification(
+    email: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    new_token = models.User.generate_verification_token()
+
+    user.verification_token = new_token
+    db.commit()
+
+    background_tasks.add_task(
+        send_verification_email,
+        email=user.email,
+        token=new_token
+    )
+
+    return {
+        'message': 'Verification email resent'
+    }
+
 @app.get("/verify-email")
 def verify_email(token: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.verification_token == token).first()
