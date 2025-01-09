@@ -6,6 +6,9 @@ from app import auth
 
 TEST_DATABASE_URL = "postgresql://user:password@db:5432/application-tracker"
 
+class TestConfig:
+    MAIL_SUPPRESS_SEND = True
+
 @pytest.fixture(scope="session")
 def engine():
     return create_engine(TEST_DATABASE_URL)

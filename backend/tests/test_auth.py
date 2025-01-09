@@ -3,6 +3,20 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database import get_db
 import time
+from unittest.mock import patch
+from fastapi_mail import FastMail
+
+@pytest.fixture(autouse=True)
+def mock_email_system():
+    async def mock_send_email(email: str, token: str):
+        return None
+    
+    async def mock_fastmail_send(*args, **kwargs):
+        return None
+    
+    with patch('app.utils.email.send_verification_email', side_effect=mock_send_email) as email_mock, \
+        patch('fastapi_mail.FastMail.send_message', side_effect=mock_fastmail_send) as fastmai_mock:
+        yield (email_mock, fastmai_mock)
 
 @pytest.fixture
 def client(db, TestingSessionLocal):
@@ -23,7 +37,13 @@ def client(db, TestingSessionLocal):
 def registered_user(client):
     user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": 'Bob', "last_name": "Kuzami"}
     response = client.post('register', json=user_data)
+    
     assert response.status_code == 200
+    
+    token = response.json().get('verification_token')
+
+    verify_response = client.get(f'/verify-email?token={token}')
+    assert verify_response.status_code == 200
 
     return user_data
 
@@ -57,6 +77,8 @@ def test_register_duplicate(client, registered_user):
 
 # Testing user login
 def test_login(client, registered_user):
+    
+
     response = client.post(
         "/token", 
         data={
