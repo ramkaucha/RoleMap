@@ -5,7 +5,7 @@ from app.database import get_db
 from datetime import datetime
 from unittest.mock import patch
 from app.utils.email import send_verification_email
-from fastapi_mail import FastMail
+from fastapi_mail import FastMail, ConnectionConfig
 
 EXAMPLE_APPLICATION = {
     "company": "XYZ company",

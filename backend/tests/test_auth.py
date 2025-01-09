@@ -4,7 +4,7 @@ from app.main import app
 from app.database import get_db
 import time
 from unittest.mock import patch
-from fastapi_mail import FastMail
+from fastapi_mail import FastMail, ConnectionConfig
 
 @pytest.fixture(autouse=True)
 def mock_email_config():
