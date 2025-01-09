@@ -7,6 +7,20 @@ from unittest.mock import patch
 from fastapi_mail import FastMail
 
 @pytest.fixture(autouse=True)
+def mock_email_config():
+    test_config = {
+        "MAIL_USERNAME": "test",
+        "MAIL_PASSWORD": "test",
+        "MAIL_FROM": "test@example.com",
+        "MAIL_PORT": 587,
+        "MAIL_SERVER": "smtp.test.com",
+        "MAIL_STARTTLS": True, 
+        "MAIL_SSL_TLS": False,
+        "USE_CREDENTIALS": True,
+        "VALIDATE_CERTS": True
+    }
+
+@pytest.fixture(autouse=True)
 def mock_email_system():
     async def mock_send_email(email: str, token: str):
         return None
