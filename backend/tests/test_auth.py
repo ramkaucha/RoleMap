@@ -20,6 +20,9 @@ def mock_email_config():
         "VALIDATE_CERTS": True
     }
 
+    with patch('app.utils.email.ConnectionConfig', return_value=test_config) as mock:
+        yield mock
+
 @pytest.fixture(autouse=True)
 def mock_email_system():
     async def mock_send_email(email: str, token: str):
