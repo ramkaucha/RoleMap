@@ -20,11 +20,10 @@ from fastapi_mail import FastMail, ConnectionConfig
 
 @pytest.fixture(autouse=True)
 def mock_fastmail():
-    mock_fm = MagicMock(spec=FastMail)
-
     async def mock_send(*args, **kwargs):
         return None
     
+    mock_fm = MagicMock(spec=FastMail)
     mock_fm.send_message.side_effect = mock_send
 
     with patch('app.utils.email.FastMail', return_value=mock_fm):

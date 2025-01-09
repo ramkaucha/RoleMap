@@ -3,9 +3,27 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base
 from app import auth
+from unittest.mock import MagicMock, patch
+from app.utils.email import ConnectionConfig
 import os
 
 TEST_DATABASE_URL = "postgresql://user:password@db:5432/application-tracker"
+
+mock_config = MagicMock()
+
+mock_config.MAIL_USERNAME = "test"
+mock_config.MAIL_PASSWORD = "test"
+mock_config.MAIL_FROM = "test@example.com"
+mock_config.MAIL_PORT = 587
+mock_config.MAIL_SERVER = "smtp.test.com"
+mock_config.MAIL_STARTTLS = True
+mock_config.MAIL_SSL_TLS = False
+mock_config.USE_CREDENTIALS = True
+
+@pytest.fixture(autouse=True, scope="session")
+def mock_connection_config():
+    with patch('app.utils.email.ConnectionConfig', return_value=mock_config):
+        yield mock_config
 
 class TestConfig:
     MAIL_SUPPRESS_SEND = True
@@ -31,18 +49,3 @@ def short_token_expiry():
     yield
     auth.ACCESS_TOKEN_EXPIRE_MINUTES = original_expire
 
-
-@pytest.fixture(autouse=True, scope="session")
-def mock_email_config():
-    os.environ['MAIL_USERNAME'] = "test"
-    os.environ['MAIL_PASSWORD'] = "test"
-    os.environ["MAIL_FROM"] = "test@example.com"
-    os.environ['MAIL_PORT'] = '587'
-    os.environ["MAIL_SERVER"] = "smtp.test.com"
-    yield
-
-    del os.environ['MAIL_USERNAME']
-    del os.environ['MAIL_PASSWORD']
-    del os.environ["MAIL_FROM"]
-    del os.environ['MAIL_PORT']
-    del os.environ["MAIL_SERVER"]
