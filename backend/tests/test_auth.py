@@ -3,20 +3,32 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database import get_db
 import time
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from fastapi_mail import FastMail, ConnectionConfig
 
+# @pytest.fixture(autouse=True)
+# def mock_email_system():
+#     async def mock_send_email(email: str, token: str):
+#         return None
+    
+#     async def mock_fastmail_send(*args, **kwargs):
+#         return None
+    
+#     with patch('app.utils.email.send_verification_email', side_effect=mock_send_email) as email_mock, \
+#         patch('fastapi_mail.FastMail.send_message', side_effect=mock_fastmail_send) as fastmai_mock:
+#         yield (email_mock, fastmai_mock)
+
 @pytest.fixture(autouse=True)
-def mock_email_system():
-    async def mock_send_email(email: str, token: str):
+def mock_fastmail():
+    mock_fm = MagicMock(spec=FastMail)
+
+    async def mock_send(*args, **kwargs):
         return None
     
-    async def mock_fastmail_send(*args, **kwargs):
-        return None
-    
-    with patch('app.utils.email.send_verification_email', side_effect=mock_send_email) as email_mock, \
-        patch('fastapi_mail.FastMail.send_message', side_effect=mock_fastmail_send) as fastmai_mock:
-        yield (email_mock, fastmai_mock)
+    mock_fm.send_message.side_effect = mock_send
+
+    with patch('app.utils.email.FastMail', return_value=mock_fm):
+        yield mock_fm
 
 @pytest.fixture
 def client(db, TestingSessionLocal):
