@@ -5,23 +5,6 @@ from app.database import get_db
 import time
 from unittest.mock import patch
 from fastapi_mail import FastMail, ConnectionConfig
-import os
-
-@pytest.fixture(autouse=True)
-def mock_email_config():
-    os.environ['MAIL_USERNAME'] = "test"
-    os.environ['MAIL_PASSWORD'] = "test"
-    os.environ["MAIL_FROM"] = "test@example.com"
-    os.environ['MAIL_PORT'] = '587'
-    os.environ["MAIL_SERVER"] = "smtp.test.com"
-    yield
-
-    del os.environ['MAIL_USERNAME']
-    del os.environ['MAIL_PASSWORD']
-    del os.environ["MAIL_FROM"]
-    del os.environ['MAIL_PORT']
-    del os.environ["MAIL_SERVER"]
-
 
 @pytest.fixture(autouse=True)
 def mock_email_system():

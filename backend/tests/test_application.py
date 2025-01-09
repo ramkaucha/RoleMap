@@ -6,7 +6,6 @@ from datetime import datetime
 from unittest.mock import patch
 from app.utils.email import send_verification_email
 from fastapi_mail import FastMail, ConnectionConfig
-import os
 
 EXAMPLE_APPLICATION = {
     "company": "XYZ company",
@@ -18,22 +17,6 @@ EXAMPLE_APPLICATION = {
     "category": "Internship",
     "date_applied": "2024-12-22T23:43:24.435Z"
 }
-
-@pytest.fixture(autouse=True)
-def mock_email_config():
-    os.environ['MAIL_USERNAME'] = "test"
-    os.environ['MAIL_PASSWORD'] = "test"
-    os.environ["MAIL_FROM"] = "test@example.com"
-    os.environ['MAIL_PORT'] = '587'
-    os.environ["MAIL_SERVER"] = "smtp.test.com"
-    yield
-
-    del os.environ['MAIL_USERNAME']
-    del os.environ['MAIL_PASSWORD']
-    del os.environ["MAIL_FROM"]
-    del os.environ['MAIL_PORT']
-    del os.environ["MAIL_SERVER"]
-
 
 @pytest.fixture(autouse=True)
 def mock_email_system():
