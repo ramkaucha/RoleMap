@@ -51,7 +51,7 @@ export default function Navigation() {
           <div className="flex md:space-x-2">
             {pages.map((item) => (
               <Button
-                size="sm"
+                // size="sm"
                 variant={item.variant}
                 key={item.name}
                 onClick={() => handleClick(item)}
