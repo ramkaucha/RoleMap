@@ -2,26 +2,30 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  
+    branches: [main]
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      MAIL_USERNAME: test
+      MAIL_PASSWORD: test
+      MAIL_FROM: test@example.com
+      MAIL_SERVER: smtp.test.com
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build and run contains
-      run: |
-        docker compose build
-        docker compose up -d
-      
-    - name: Run tests
-      run: |
-        docker compose exec -T backend pytest -v
-    
+      - name: Build and run contains
+        run: |
+          docker compose build
+          docker compose up -d
 
-    - name: Cleanup
-      run: docker compose down
+      - name: Run tests
+        run: |
+          docker compose exec -T backend pytest -v
+
+      - name: Cleanup
+        run: docker compose down

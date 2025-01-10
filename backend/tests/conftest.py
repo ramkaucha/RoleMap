@@ -9,21 +9,18 @@ import os
 
 TEST_DATABASE_URL = "postgresql://user:password@db:5432/application-tracker"
 
-mock_config = MagicMock()
-
-mock_config.MAIL_USERNAME = "test"
-mock_config.MAIL_PASSWORD = "test"
-mock_config.MAIL_FROM = "test@example.com"
-mock_config.MAIL_PORT = 587
-mock_config.MAIL_SERVER = "smtp.test.com"
-mock_config.MAIL_STARTTLS = True
-mock_config.MAIL_SSL_TLS = False
-mock_config.USE_CREDENTIALS = True
-
-@pytest.fixture(autouse=True, scope="session")
-def mock_connection_config():
-    with patch('app.utils.email.ConnectionConfig', return_value=mock_config):
-        yield mock_config
+@pytest.fixture(autouse=True)
+def setup_test():
+    os.environ['MAIL_USERNAME'] = 'test'
+    os.environ['MAIL_PASSWORD'] = 'test'
+    os.environ['MAIL_FROM'] = 'test@example.com'
+    os.environ['MAIL_SERVER'] = 'smtp.test.com'
+    yield
+    # Clean up after tests
+    del os.environ['MAIL_USERNAME']
+    del os.environ['MAIL_PASSWORD']
+    del os.environ['MAIL_FROM']
+    del os.environ['MAIL_SERVER']
 
 class TestConfig:
     MAIL_SUPPRESS_SEND = True
