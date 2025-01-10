@@ -10,6 +10,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { LoginFormData } from "@/components/interfaces";
 import ErrorAlert from "@/components/error-alert";
+import Link from "next/link";
 
 const URL = process.env.PROD_FRONTEND_URL;
 
@@ -97,6 +98,11 @@ export default function LoginForm() {
               value={formData.password}
               onChange={handleChange}
             />
+          </div>
+          <div>
+            <Link href="/auth/register" className="text-sm">
+              Don't have an Account? <span className="text-blue-700 underline">Sign Up Here.</span>
+            </Link>
           </div>
           <Button
             type="submit"
