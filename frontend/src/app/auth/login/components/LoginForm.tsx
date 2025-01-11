@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { LoginFormData } from "@/components/interfaces";
 import ErrorAlert from "@/components/error-alert";
 import Link from "next/link";
+import { BACKEND_URL } from "@/app/config/pages";
 
 const URL = process.env.PROD_FRONTEND_URL;
 
@@ -30,7 +31,7 @@ export default function LoginForm() {
         password: data.password,
       });
 
-      const response = await axios.post("http://localhost:8000/token", formData, {
+      const response = await axios.post(`${BACKEND_URL}/token`, formData, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/json",
@@ -56,6 +57,7 @@ export default function LoginForm() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(process.env.NEXT_PUBLIC_API_URL);
     let { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,

@@ -1,5 +1,6 @@
 "use client";
 
+import { BACKEND_URL } from "@/app/config/pages";
 import ErrorAlert from "@/components/error-alert";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
@@ -44,8 +45,6 @@ export default function VerifyPage() {
   }, [resendCooldown]);
 
   const handleResendVerification = async () => {
-    console.log("hello");
-
     if (resendCooldown > 0) {
       setError("Must wait for the cooldown!!");
       return;
@@ -54,7 +53,7 @@ export default function VerifyPage() {
     if (!email) return;
     try {
       await axios.post(
-        "https://locakhost:8000/resend-verification",
+        `${BACKEND_URL}/resend-verification`,
         { email },
         {
           headers: {
