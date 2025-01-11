@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Home from "../components/HomePage";
 import PageWrapper from "../components/PageWrapper";
 

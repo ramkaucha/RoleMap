@@ -12,11 +12,13 @@ import { LoginFormData } from "@/components/interfaces";
 import ErrorAlert from "@/components/error-alert";
 import Link from "next/link";
 import { BACKEND_URL } from "@/app/config/pages";
+import { useAuth } from "@/app/context/AuthContext";
 
 const URL = process.env.PROD_FRONTEND_URL;
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     password: "",
@@ -40,7 +42,8 @@ export default function LoginForm() {
       });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      login(data.access_token);
       router.push("/dashboard");
     },
     onError: (error: any) => {

@@ -12,7 +12,7 @@ from .database import get_db
 
 SECRET_KEY = 'key'
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 120 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
