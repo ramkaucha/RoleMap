@@ -54,7 +54,9 @@ async def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, 
         token=verification_token
     )
 
-    return db_user
+    return {
+        "message": "User successfully created"
+    }
 
 @app.post("/resend-verification")
 def resend_verification(
