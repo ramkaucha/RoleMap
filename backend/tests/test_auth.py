@@ -47,13 +47,13 @@ def client(db, TestingSessionLocal):
 @pytest.fixture
 def registered_user(client):
     user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": 'Bob', "last_name": "Kuzami"}
-    response = client.post('register', json=user_data)
+    response = client.post('/auth/register', json=user_data)
     
     assert response.status_code == 200
     
     token = response.json().get('verification_token')
 
-    verify_response = client.get(f'/verify-email?token={token}')
+    verify_response = client.get(f'/auth/verify-email?token={token}')
     assert verify_response.status_code == 200
 
     return user_data
@@ -61,7 +61,7 @@ def registered_user(client):
 # Testing creating a user
 def test_create_user(client):
     response = client.post(
-        "/register",
+        "/auth/register",
         json={"email": "test@example.com", "password": "StrongPassword123!@#", "first_name": "Bob", "last_name": "Kuzami"}
     )
     assert response.status_code == 200
@@ -74,7 +74,7 @@ def test_create_user(client):
 # Email already registered
 def test_register_duplicate(client, registered_user):
     response = client.post(
-        '/register',
+        '/auth/register',
         json={
             "email": "test@example.com",
             "password": "StrongPassword1231!@",
@@ -91,7 +91,7 @@ def test_login(client, registered_user):
     
 
     response = client.post(
-        "/token", 
+        "/auth/token", 
         data={
             "username": registered_user["email"],
             "password": registered_user["password"]
@@ -105,7 +105,7 @@ def test_login(client, registered_user):
 # Testing user logging in with incorrect password
 def test_login_incorrect_password(client, registered_user):
     response = client.post(
-        "/token",
+        "/auth/token",
         data={
             "username": registered_user['email'],
             "password": "wrongpassword"
@@ -117,7 +117,7 @@ def test_login_incorrect_password(client, registered_user):
 # Testing user logging in with incorrect email
 def test_login_incorrect_email(client, registered_user):
     response = client.post(
-        "/token",
+        "/auth/token",
         data={
             "username": "randomemail@email.com",
             "password": registered_user["password"]
@@ -129,7 +129,7 @@ def test_login_incorrect_email(client, registered_user):
 
 def test_register_weak_password(client):
     response = client.post(
-        "/register",
+        "/auth/register",
         json={
             "email": "test@example.com",
             "password": "weakpassword123",
@@ -144,7 +144,7 @@ def test_register_weak_password(client):
 # Passing in password as empty string
 def test_register_empty_password(client):
     response = client.post(
-        "/register",
+        "/auth/register",
         json={
             "email": "test@example.com",
             "password": "",
@@ -159,7 +159,7 @@ def test_register_empty_password(client):
 # Testing invalid address
 def test_register_invalid_email(client):
     response = client.post(
-        "/register",
+        "/auth/register",
         json={
             "email": "ivalid-email",
             "password": "Strongpassword123@!"
@@ -174,7 +174,7 @@ def test_register_invalid_email(client):
 # Verify token format after login
 def test_token_format(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user["email"],
             "password": registered_user["password"]
@@ -193,7 +193,7 @@ def test_token_format(client, registered_user):
 # test token expiration
 def test_token_expiration(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user['password']
@@ -227,7 +227,7 @@ def test_invalid_token_access(client, registered_user):
     assert response.json()['detail'] == 'Could not validate credentials'
     
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user["email"],
             "password": registered_user["password"]
@@ -248,7 +248,7 @@ def test_invalid_token_access(client, registered_user):
 # Access to protected route using valid token
 def test_read_users_me(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user['password']
@@ -273,7 +273,7 @@ def test_read_users_me(client, registered_user):
 # # Updating profile password
 def test_update_password(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user["password"]
@@ -299,7 +299,7 @@ def test_update_password(client, registered_user):
     assert response.status_code == 200
 
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             'username': registered_user['email'],
             'password': registered_user["password"]
@@ -309,7 +309,7 @@ def test_update_password(client, registered_user):
     assert response.status_code != 200
 
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             'username': registered_user['email'],
             'password': new_password
@@ -321,7 +321,7 @@ def test_update_password(client, registered_user):
 # Updating profile first name and last name.
 def test_update_profile(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user['password']
@@ -353,7 +353,7 @@ def test_update_profile(client, registered_user):
 
 def test_update_profile_picture(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user['password']

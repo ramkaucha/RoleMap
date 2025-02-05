@@ -59,7 +59,7 @@ def client(db, TestingSessionLocal):
 @pytest.fixture
 def registered_user(client):
     user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": "Bob", "last_name": "Kazumi"}
-    response = client.post('/register', json=user_data)
+    response = client.post('/auth/register', json=user_data)
     assert response.status_code == 200
 
     token = response.json().get('verification_token')
@@ -71,7 +71,7 @@ def registered_user(client):
 @pytest.fixture
 def logged_in_user(client, registered_user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={
             "username": registered_user['email'],
             "password": registered_user['password']
