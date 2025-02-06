@@ -53,16 +53,16 @@ async def update_user_profile(
     for key, value in updates.items():
       setattr(current_user, key, value)
 
-      db.commit()
+    db.commit()
 
-      return {
-        "message": "Profile updated successfully",
-        "user": {
-          "email": current_user.email,
-          "first_name": current_user.first_name,
-          "last_name": current_user.last_name
-        }
+    return {
+      "message": "Profile updated successfully",
+      "user": {
+        "email": current_user.email,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name
       }
+    }
   except Exception as e:
     db.rollback()
     raise HTTPException(

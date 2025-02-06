@@ -64,7 +64,7 @@ def registered_user(client):
 
     token = response.json().get('verification_token')
 
-    verify_response = client.get(f'/verify-email?token={token}')
+    verify_response = client.get(f'/auth/verify-email?token={token}')
     assert verify_response.status_code == 200
     return user_data
 

@@ -64,9 +64,10 @@ async def register(
     token=verification_token
   )
 
-  return {
-    "description": "User successfully created"
-  }
+  return db_user
+  # return {
+  #   "description": "User successfully created"
+  # }
 
 @router.post("/token", response_model=schemas.Token,
     summary="Login a user",
