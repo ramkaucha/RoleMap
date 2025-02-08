@@ -33,7 +33,7 @@ export default function LoginForm() {
         password: data.password,
       });
 
-      const response = await axios.post(`${BACKEND_URL}/token`, formData, {
+      const response = await axios.post(`${BACKEND_URL}/auth/token`, formData, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/json",
@@ -94,7 +94,12 @@ export default function LoginForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link href="/auth/reset-password" className="text-sm text-blue-700 underline">
+                Forgot Password?
+              </Link>
+            </div>
             <EnhancedInput
               id="password"
               name="password"

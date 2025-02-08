@@ -2,16 +2,15 @@
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import EnhancedInput from "@/components/enhanced-input";
-import { RegisterFormProps } from "@/components/interfaces";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { RegisterFormData } from "@/components/interfaces";
 import ErrorAlert from "@/components/error-alert";
+import { BACKEND_URL } from "@/app/config/pages";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -30,7 +29,7 @@ export default function RegisterForm() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      const response = await axios.post("http://localhost:8000/register", data, {
+      const response = await axios.post(`${BACKEND_URL}/auth/register`, data, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -76,10 +75,15 @@ export default function RegisterForm() {
 
   const handleSubmit = async () => {
     if (!passwordMatch) {
+      setError("Passwords do not match");
       return;
     }
 
-    registerMutation.mutate(formData);
+    try {
+      await registerMutation.mutateAsync(formData);
+    } catch (error: any) {
+      setError(error);
+    }
   };
 
   return (
