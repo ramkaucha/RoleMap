@@ -42,7 +42,15 @@ export default function Navigation() {
   return (
     <motion.nav initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {isAuthenticated ? (
-        <div>You are logged in</div>
+        <div className="flex justify-end items-center w-full">
+          <Button
+            variant="destructive"
+            onClick={logout}
+            className="my-4 leading-none font-semibold"
+          >
+            Logout
+          </Button>
+        </div>
       ) : (
         <div className="flex justify-between items-center w-full">
           <div className="py-2 hidden sm:block flex-col">

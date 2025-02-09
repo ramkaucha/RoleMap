@@ -53,7 +53,7 @@ export default function VerifyPage() {
     if (!email) return;
     try {
       await axios.post(
-        `${BACKEND_URL}/resend-verification`,
+        `${BACKEND_URL}/auth/resend-verification`,
         { email },
         {
           headers: {

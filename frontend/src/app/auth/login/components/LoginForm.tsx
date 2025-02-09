@@ -44,7 +44,7 @@ export default function LoginForm() {
     },
     onSuccess: (data) => {
       login(data.access_token);
-      router.push("/dashboard");
+      router.push("/track");
     },
     onError: (error: any) => {
       let errorMessage =

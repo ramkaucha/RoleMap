@@ -20,7 +20,7 @@ export default function EmailVerifyPage() {
 
   const handleUserVerification = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/verify-email?token=${token}`);
+      const response = await axios.get(`${BACKEND_URL}/auth/verify-email?token=${token}`);
       setIsLoading(false);
     } catch (err: any) {
       if (err.response) {

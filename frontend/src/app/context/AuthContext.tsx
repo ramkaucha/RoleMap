@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedToken = localStorage.getItem("Jobtrkr_token");
     if (!storedToken) {
       setIsLoading(false);
-      router.replace("/auth/login");
+      // router.replace("/auth/login");
       return;
     }
 
