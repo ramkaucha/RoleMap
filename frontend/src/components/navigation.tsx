@@ -50,6 +50,9 @@ export default function Navigation() {
           >
             Logout
           </Button>
+          <div className="my-4 ml-2">
+            <ThemeToggle />
+          </div>
         </div>
       ) : (
         <div className="flex justify-between items-center w-full">
