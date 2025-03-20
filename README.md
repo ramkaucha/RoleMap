@@ -35,7 +35,7 @@ Backend services:
 
 ```bash
 cd backend/
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ```bash
