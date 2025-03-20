@@ -5,8 +5,7 @@ import Navigation from "../components/navigation";
 import PageWrapper from "../components/PageWrapper";
 import Providers from "./providers";
 import Footer from "@/components/footer";
-import { AppSideBar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AuthenticatedLayout from '../components/authenticated-layout';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Application Tracker",
+  title: "RoleMap",
   description: "Track your applications and get hired!",
 };
 
@@ -36,23 +35,18 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} ${poppins.variable} antialiased`}>
+      <body className={`${geistMono.variable} ${poppins.variable} antialiased`}>
         <Providers>
-          <div className="px-12 flex flex-col h-screen overflow-hidden">
-            <div className="flex-none">
+          <div className="flex flex-col min-h-screen overflow-hidden px-12">
+            <div>
               <Navigation />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <SidebarProvider>
-                <div className="h-full flex">
-                  <AppSideBar />
-                  <div className="flex-1 overflow-auto">
-                    <PageWrapper>{children}</PageWrapper>
-                  </div>
-                </div>
-              </SidebarProvider>
+            <div className="flex-1 flex justify-center items-center w-full">
+              <AuthenticatedLayout>
+                <PageWrapper>{children}</PageWrapper>
+              </AuthenticatedLayout>
             </div>
-            <div className="flex-none">
+            <div>
               <Footer />
             </div>
           </div>

@@ -25,14 +25,14 @@ const pageVariants = {
   },
 };
 
-export default function PageWrapper({ children }: { children: ReactNode }) {
+export default function PageWrapper({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <motion.div
       initial="initial"
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      className="flex-1 flex flex-col"
+      className={`flex ${className}`}
     >
       {children}
     </motion.div>

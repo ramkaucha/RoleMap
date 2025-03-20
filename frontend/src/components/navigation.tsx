@@ -56,8 +56,8 @@ export default function Navigation() {
         </div>
       ) : (
         <div className="flex justify-between items-center w-full">
-          <div className="py-2 hidden sm:block flex-col">
-            <Logo />
+          <div className="py-2 hidden sm:block flex-col text-xl font-bold cursor-pointer" onClick={() => router.push('/')}>
+            RoleMap.
           </div>
           <div className="flex md:space-x-2">
             {pages.map((item) => (

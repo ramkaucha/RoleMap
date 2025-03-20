@@ -43,7 +43,7 @@ export function AppSideBar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Jobtrckr</SidebarGroupLabel>
+          <SidebarGroupLabel>RoleMap</SidebarGroupLabel>
           <SidebarContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -54,7 +54,7 @@ export function AppSideBar() {
                         <SidebarMenuButton asChild>
                           <a href={item.url} className="text-base">
                             <item.icon className="h-10 w-10" />
-                            <span className="text-lg">{item.title}</span>
+                            <span className="text-md">{item.title}</span>
                           </a>
                         </SidebarMenuButton>
                       </SidebarMenuItem>

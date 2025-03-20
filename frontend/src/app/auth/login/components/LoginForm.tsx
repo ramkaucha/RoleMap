@@ -73,9 +73,9 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex-grow flex justify-center items-center flex-col">
+    <div className="flex-grow flex flex-col w-full">
       {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
-      <Card className="w-full max-w-md">
+      <Card className="w-full w-full ml-10">
         <CardHeader>
           <CardTitle className="text-3xl">Login</CardTitle>
           <CardDescription>Login to your account</CardDescription>
