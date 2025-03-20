@@ -35,18 +35,18 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistMono.variable} ${poppins.variable} antialiased`}>
+      <body className={`${geistMono.variable} ${poppins.variable} antialiased h-screen overflow-hidden`}>
         <Providers>
-          <div className="flex flex-col min-h-screen overflow-hidden px-12">
-            <div>
+          <div className="flex flex-col h-screen overflow-hidden">
+            <div className="flex-none">
               <Navigation />
             </div>
-            <div className="flex-1 flex justify-center items-center w-full">
+            <div className="flex-1 overflow-hidden px-12">
               <AuthenticatedLayout>
-                <PageWrapper>{children}</PageWrapper>
+                <PageWrapper className="h-full">{children}</PageWrapper>
               </AuthenticatedLayout>
             </div>
-            <div>
+            <div className="flex-none">
               <Footer />
             </div>
           </div>
@@ -55,3 +55,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
