@@ -1,7 +1,14 @@
-"use client";
+'use client';
 
-import { useAuth } from "@/app/context/AuthContext";
-import { ListPlus, LayoutDashboard, ClipboardListIcon, DatabaseIcon, SettingsIcon } from "lucide-react";
+import { useAuth } from '@/app/context/AuthContext';
+import {
+  ListPlus,
+  LayoutDashboard,
+  ClipboardListIcon,
+  DatabaseIcon,
+  SettingsIcon,
+  Plus,
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,50 +18,57 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { NavDocuments } from "./nav-documents";
-import { NavSecondary } from "./nav-secondary";
-import { NavMain } from "./nav-main";
-import { NavUser } from "./nav-user";
+} from '@/components/ui/sidebar';
+import { NavDocuments } from './nav-documents';
+import { NavSecondary } from './nav-secondary';
+import { NavMain } from './nav-main';
+import { NavUser } from './nav-user';
+import { Button } from './ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@radix-ui/react-tooltip';
 
 const data = {
   user: {
     name: 'Ram Kaucha',
     email: 'me@ramkaucha.com',
-    avatar: '/globe.svg'
+    avatar: '/globe.svg',
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard
+      title: 'Dashboard',
+      url: '/dashboard',
+      icon: LayoutDashboard,
     },
     {
-      title: "Track",
-      url: "/track",
-      icon: ListPlus
-    }
+      title: 'Track',
+      url: '/track',
+      icon: ListPlus,
+    },
   ],
   documents: [
     {
-      title: "Documents",
-      url: "#",
-      icon: DatabaseIcon
+      title: 'Documents',
+      url: '#',
+      icon: DatabaseIcon,
     },
     {
-      title: "Resume",
-      url: "#",
-      icon: ClipboardListIcon
+      title: 'Resume',
+      url: '#',
+      icon: ClipboardListIcon,
     },
   ],
   navSecondary: [
     {
-      "title": "Settings",
-      "url": "/settings",
-      icon: SettingsIcon
-    }
-  ]
-}
+      title: 'Settings',
+      url: '/settings',
+      icon: SettingsIcon,
+    },
+  ],
+};
 
 export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isAuthenticated } = useAuth();
@@ -68,7 +82,10 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="#">
                 <span className="text-base font-semibold">
                   <span className="sidebar-expanded-only">RoleMap.</span>
@@ -80,11 +97,29 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarTrigger />
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-2 py-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarMenuButton className="w-full gap-2" variant="default">
+                  <Plus className="h-4 w-4" />
+                  <span className="sidebar-expanded-only">Application</span>
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={5}
+                className="bg-popover text-popover-foreground rounded-md px-3 py-1.5 text-sm font-medium shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data[side=bottom]:slide-in-from-top-2"
+              >
+                <p>New Application</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="mb-4 flex justify-center items-center">
+      <SidebarFooter className="mb-4">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
