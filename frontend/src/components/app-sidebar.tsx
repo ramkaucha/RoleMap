@@ -1,35 +1,62 @@
 "use client";
 
 import { useAuth } from "@/app/context/AuthContext";
-import { ListPlus, LayoutDashboard } from "lucide-react";
+import { ListPlus, LayoutDashboard, ClipboardListIcon, DatabaseIcon, SettingsIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
+import { NavDocuments } from "./nav-documents";
+import { NavSecondary } from "./nav-secondary";
+import { NavMain } from "./nav-main";
+import { NavUser } from "./nav-user";
 
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
+const data = {
+  user: {
+    name: 'Ram Kaucha',
+    email: 'me@ramkaucha.com',
+    avatar: '/globe.svg'
   },
-  {
-    title: "Track",
-    url: "/track",
-    icon: ListPlus,
-  },
-];
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard
+    },
+    {
+      title: "Track",
+      url: "/track",
+      icon: ListPlus
+    }
+  ],
+  documents: [
+    {
+      title: "Documents",
+      url: "#",
+      icon: DatabaseIcon
+    },
+    {
+      title: "Resume",
+      url: "#",
+      icon: ClipboardListIcon
+    },
+  ],
+  navSecondary: [
+    {
+      "title": "Settings",
+      "url": "/settings",
+      icon: SettingsIcon
+    }
+  ]
+}
 
-export function AppSideBar() {
+export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
@@ -37,44 +64,29 @@ export function AppSideBar() {
   }
 
   return (
-    <Sidebar collapsible="icon" className="font-poppins">
-      <SidebarHeader className="flex justify-end p-2">
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <a href="#">
+                <span className="text-base font-semibold">
+                  <span className="sidebar-expanded-only">RoleMap.</span>
+                </span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarTrigger />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>RoleMap</SidebarGroupLabel>
-          <SidebarContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <TooltipProvider key={item.title}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <a href={item.url} className="text-base">
-                            <item.icon className="h-10 w-10" />
-                            <span className="text-md">{item.title}</span>
-                          </a>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="right"
-                      sideOffset={5}
-                      className="bg-popover text-popover-foreground rounded-md px-3 py-1.5 text-sm font-medium shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data[side=bottom]:slide-in-from-top-2 "
-                    >
-                      <p>{item.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </SidebarGroup>
-        <SidebarGroup />
+        <NavMain items={data.navMain} />
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="mb-4 flex justify-center items-center">
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

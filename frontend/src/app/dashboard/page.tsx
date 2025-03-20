@@ -10,14 +10,13 @@ export default function DashboardPage() {
     <PageWrapper className="w-full h-full p-4 overflow-y-hidden">
       <div className="w-full">
         <h1 className="text-2xl font-bold mb-4">👋 Welcome Back, Ram!</h1>
-        
         <div className="mb-6">
           <MetricsList />
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ApplicationActivity />
-          
+
           <StatusAndResponseChart />
         </div>
       </div>

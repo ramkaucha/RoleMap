@@ -33,7 +33,7 @@ export default function MetricsList() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {metrics.map((item) => (
           <div key={item.name} className="border rounded-xl shadow-sm">
-            <div className="aspect-square w-full flex flex-col items-center justify-center p-2 text-center">
+            <div className="aspect-[3/2] w-full flex flex-col items-center justify-center p-2 text-center">
               <span className="text-sm font-medium text-muted-foreground mb-2">{item.name}</span>
               <span className="text-2xl font-bold">{item.number}</span>
             </div>

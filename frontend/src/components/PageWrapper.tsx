@@ -25,7 +25,7 @@ const pageVariants = {
   },
 };
 
-export default function PageWrapper({ children, className = "" }: { children: ReactNode; className?: string }) {
+export default function PageWrapper({ children, className = "" }: { children?: ReactNode; className?: string }) {
   return (
     <motion.div
       initial="initial"

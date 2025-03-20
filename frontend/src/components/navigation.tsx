@@ -42,7 +42,7 @@ export default function Navigation() {
   return (
     <motion.nav initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {isAuthenticated ? (
-        <div className="flex justify-end items-center w-full">
+        <div className="flex justify-end items-center w-full px-12">
           <Button
             variant="destructive"
             onClick={logout}
@@ -55,7 +55,7 @@ export default function Navigation() {
           </div>
         </div>
       ) : (
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-center w-full px-12">
           <div className="py-2 hidden sm:block flex-col text-xl font-bold cursor-pointer" onClick={() => router.push('/')}>
             RoleMap.
           </div>
