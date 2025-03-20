@@ -1,13 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import PageWrapper from "@/components/PageWrapper";
-import MetricsList from "./components/Metrics";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-
-// export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 
 const statusDistributionData = [
   { name: 'Applied', value: 35 },
@@ -48,10 +44,7 @@ export default function StatusAndResponseChart() {
                   data={statusDistributionData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
                   fill="#8884d8"
-                  paddingAngle={5}
                   dataKey="value"
                   label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
