@@ -11,12 +11,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from './ui/sidebar';
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@radix-ui/react-tooltip';
+import { useAuth } from '@/app/context/AuthContext';
 import { ChevronUp, LogOut, Settings, User2 } from 'lucide-react';
 
 interface NavItem {
@@ -37,6 +32,7 @@ interface UserType {
 }
 
 export function NavUser({ user }: { user: UserType }) {
+  const { logout } = useAuth();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -57,7 +53,10 @@ export function NavUser({ user }: { user: UserType }) {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-1 h-px bg-gray-200 dark:bg-slate-700" />
-            <DropdownMenuItem className="flex items-center px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition-colors">
+            <DropdownMenuItem
+              onClick={logout}
+              className="flex items-center px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition-colors"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sign Out</span>
             </DropdownMenuItem>

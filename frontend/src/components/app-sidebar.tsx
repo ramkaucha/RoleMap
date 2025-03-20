@@ -20,10 +20,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavDocuments } from './nav-documents';
-import { NavSecondary } from './nav-secondary';
 import { NavMain } from './nav-main';
 import { NavUser } from './nav-user';
-import { Button } from './ui/button';
 import {
   Tooltip,
   TooltipContent,

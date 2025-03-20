@@ -1,3 +1,9 @@
+export interface HistoryEvent {
+  status: string;
+  date: Date | string;
+  notes?: string;
+}
+
 export type Application = {
   id: number;
   company: string;
@@ -11,12 +17,16 @@ export type Application = {
   user_id: number;
   created_at: Date;
   updated_at: Date;
+  recruiter?: string;
+  application_method?: string;
+  upcoming_events?: string;
+  history?: HistoryEvent[];
 };
 
 export const ApplicationStatus = {
-  APPLIED: 'applied',
-  ONLINE_ASSESSMENT: 'online assessment',
-  INTERVIEWING: 'interviewing',
-  REJECTED: 'rejected',
-  GHOSTED: 'ghosted'
+  APPLIED: 'Applied',
+  ONLINE_ASSESSMENT: 'Online Assessment',
+  INTERVIEWING: 'Interviewing',
+  REJECTED: 'Rejected',
+  GHOSTED: 'Ghosted',
 };

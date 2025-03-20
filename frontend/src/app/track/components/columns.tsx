@@ -5,8 +5,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import { EditableCell } from './editable-cell';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { ApplicationDetailsModal } from './application-modal';
 
-// Export a plain array of column definitions instead of using useMemo at the module level
 export const columns: ColumnDef<Application>[] = [
   {
     accessorKey: 'company',
@@ -41,16 +42,30 @@ export const columns: ColumnDef<Application>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => {
-          alert('blah blah');
-        }}
-      >
-        Details
-      </Button>
-    ),
+    cell: ({ row }) => {
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const application = row.original;
+
+      return (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Details
+          </Button>
+
+          {isModalOpen && (
+            <ApplicationDetailsModal
+              application={application}
+              isOpen={isModalOpen}
+              setIsOpen={setIsModalOpen}
+              onSave={() => console.log('save')}
+            />
+          )}
+        </>
+      );
+    },
   },
 ];

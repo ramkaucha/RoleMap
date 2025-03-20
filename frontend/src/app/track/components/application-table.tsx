@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -35,8 +35,11 @@ export default function ApplicationTable({
   title = 'Applications',
 }: ApplicationTableProps) {
   const [globalFilter, setGlobalFilter] = useState('');
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 7,
+  });
 
-  // Use the columns within the component
   const table = useReactTable({
     data,
     columns,
@@ -45,11 +48,9 @@ export default function ApplicationTable({
     },
     state: {
       globalFilter,
-      pagination: {
-        pageIndex: 0,
-        pageSize: 8,
-      },
+      pagination,
     },
+    onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -71,6 +72,17 @@ export default function ApplicationTable({
       },
     },
   });
+
+  const getRowStyles = (status: string) => {
+    if (status?.toLowerCase() === 'rejected') {
+      return 'bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30';
+    }
+    return '';
+  };
+
+  useEffect(() => {
+    table.resetPageIndex();
+  }, [globalFilter, table]);
 
   return (
     <Card className="w-full mx-auto">
@@ -110,6 +122,7 @@ export default function ApplicationTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className={getRowStyles(row.original.status)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -137,19 +150,10 @@ export default function ApplicationTable({
 
         <div className="flex items-center justify-between space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            Showing{' '}
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}{' '}
-            to{' '}
-            {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
-            )}{' '}
-            of {table.getFilteredRowModel().rows.length} applications
+            Page {pagination.pageIndex + 1} of {table.getPageCount()} (
+            {table.getPrePaginationRowModel().rows.length} total records)
           </div>
-          <div className="space-x-2">
+          <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
@@ -158,6 +162,28 @@ export default function ApplicationTable({
             >
               Previous
             </Button>
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: table.getPageCount() }, (_, i) => (
+                <Button
+                  key={i}
+                  variant={pagination.pageIndex === i ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => table.setPageIndex(i)}
+                  className="w-8 h-8 p-0"
+                >
+                  {i + 1}
+                </Button>
+              )).slice(
+                Math.max(
+                  0,
+                  Math.min(pagination.pageIndex - 2, table.getPageCount() - 5)
+                ),
+                Math.max(
+                  5,
+                  Math.min(pagination.pageIndex + 3, table.getPageCount())
+                )
+              )}
+            </div>
             <Button
               variant="outline"
               size="sm"
