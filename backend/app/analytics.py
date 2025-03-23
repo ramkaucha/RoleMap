@@ -2,6 +2,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from . import models
+from app.schemas import ApplicationStatus
 
 def calculate_success_rate(db: Session, user_id: int) -> float:
     total = db.query(models.Application).filter(
@@ -13,7 +14,7 @@ def calculate_success_rate(db: Session, user_id: int) -> float:
     
     accepted = db.query(models.Application).filter(
         models.Application.user_id == user_id,
-        models.Application.status == 'INTERVIEWING'
+        models.Application.status == 'interviewing'
     ).count()
 
     return ( accepted / total ) * 100
@@ -35,14 +36,17 @@ def get_total_applications(db: Session, user_id: int) -> int:
 
     return result
 
-def get_offer_rate(db: Session, user_id: int) -> int:
-    result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status.in_(["OFFERED"])).count()
-    total = db.query(models.Application).filter(models.Application.user_id == user_id).count()
+# def get_offer_rate(db: Session, user_id: int) -> int:
+#     total = db.query(models.Application).filter(models.Application.user_id == user_id).count()
+#     result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == ApplicationStatus.OFFERED.value).count()
 
-    return result // total
+#     if result <= 0:
+#         return 0
+
+#     return result // total
 
 def get_interview_rate(db: Session, user_id: int) -> int:
-    result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == "INTERVIEWING").count()
+    result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == ApplicationStatus.INTERVIEWING).count()
     total = get_total_applications(db, user_id)
 
     return result // total

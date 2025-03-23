@@ -49,10 +49,10 @@ export const useCreateApplicationMutation = () => {
   });
 };
 
-export const getDashboardSummary = () => {
+export const useGetDashboardSummary = () => {
   return useMutation({
     mutationFn: async () => {
-      const response = await axios.get(`${BACKEND_URL}/summary`, {
+      const response = await axios.get(`${BACKEND_URL}/analytics/summary`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         },
@@ -69,17 +69,7 @@ export const getDashboardSummary = () => {
         errorMessage = 'An error occurred during getting summary for dashboard';
       }
 
-      throw new Error(errorMessage);
+      throw new Error(err);
     },
   });
 };
-
-// export const getApplicationById = () => {
-//   return useMutation({
-//     mutationFn: async (id: int) => {
-//       const response = await axios.get(`${BACKEND_URL}/applications/${id}`, {
-//
-//       })
-//     }
-//   })
-// }
