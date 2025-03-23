@@ -30,3 +30,22 @@ export const ApplicationStatus = {
   REJECTED: 'Rejected',
   GHOSTED: 'Ghosted',
 };
+
+export const applicationStatusOptions = [
+  'Applied',
+  'Online Assessment',
+  'Interviewing',
+  'Rejected',
+  'Ghosted',
+];
+
+export interface ApplicationCreate {
+  company: string;
+  role: string;
+  status: string;
+  location: string;
+  category: string;
+  link: string;
+  comments?: string;
+  date_applied: Date;
+}

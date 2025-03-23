@@ -6,7 +6,7 @@ import { EditableCell } from './editable-cell';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { ApplicationDetailsModal } from './application-modal';
+import { ApplicationDetailsModal } from './application-detail-modal';
 
 export const columns: ColumnDef<Application>[] = [
   {

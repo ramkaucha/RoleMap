@@ -1,59 +1,35 @@
-"use client";
+'use client';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import EnhancedInput from "@/components/enhanced-input";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { RegisterFormData } from "@/components/interfaces";
-import ErrorAlert from "@/components/error-alert";
-import { BACKEND_URL } from "@/app/config/pages";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import EnhancedInput from '@/components/enhanced-input';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { RegisterFormData } from '@/components/interfaces';
+import ErrorAlert from '@/components/error-alert';
+import { useRegistrationMutation } from '@/routes/auth';
 
 export default function RegisterForm() {
   const router = useRouter();
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: "",
-    first_name: "",
-    last_name: "",
-    password: "",
+    email: '',
+    first_name: '',
+    last_name: '',
+    password: '',
     profile_picture: null,
     profile_picture_type: null,
   });
 
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const registerMutation = useMutation({
-    mutationFn: async (data: RegisterFormData) => {
-      const response = await axios.post(`${BACKEND_URL}/auth/register`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        withCredentials: false,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      sessionStorage.setItem("registration_email", formData.email);
-      sessionStorage.setItem("registration_timestamp", Date.now().toString());
-      router.push(`/auth/verify?email=${encodeURIComponent(formData.email)}`);
-    },
-    onError: (error: any) => {
-      let errorMessage =
-        error.response?.data?.detail || error.message || "An error occurred during registration.";
-      if (errorMessage.length > 1) {
-        errorMessage = "An error occurred during registration.";
-      }
-
-      setError(errorMessage);
-      throw error;
-    },
-  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let { name, value } = e.target;
@@ -62,12 +38,16 @@ export default function RegisterForm() {
       [name]: value,
     }));
 
-    if (name === "password") {
+    if (name === 'password') {
       setPasswordMatch(value === confirmPassword);
     }
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const registerMutation = useRegistrationMutation();
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { value } = e.target;
     setConfirmPassword(value);
     setPasswordMatch(value === formData.password);
@@ -75,7 +55,7 @@ export default function RegisterForm() {
 
   const handleSubmit = async () => {
     if (!passwordMatch) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
@@ -155,7 +135,9 @@ export default function RegisterForm() {
               onChange={handleConfirmPasswordChange}
             />
             {!passwordMatch && confirmPassword && (
-              <p className="text-red-500 mt-1 text-sm">Passwords do not match</p>
+              <p className="text-red-500 mt-1 text-sm">
+                Passwords do not match
+              </p>
             )}
           </div>
           <Button
@@ -165,7 +147,7 @@ export default function RegisterForm() {
             className="w-full font-semibold"
             disabled={!passwordMatch || registerMutation.isPending}
           >
-            {registerMutation.isPending ? "Registering..." : "Register"}
+            {registerMutation.isPending ? 'Registering...' : 'Register'}
           </Button>
         </CardContent>
       </Card>

@@ -28,12 +28,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@radix-ui/react-tooltip';
+import { useState } from 'react';
+import {
+  ApplicationCreateModal,
+  FormValues,
+} from '@/app/track/components/application-create-modal';
+import { useCreateApplicationMutation } from '@/routes/application';
+import { ApplicationCreate } from './type/application';
+import ErrorAlert from './error-alert';
 
 const data = {
   user: {
     name: 'Ram Kaucha',
     email: 'me@ramkaucha.com',
-    avatar: '/globe.svg',
   },
   navMain: [
     {
@@ -70,56 +77,82 @@ const data = {
 
 export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isAuthenticated } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!isAuthenticated) {
     return null;
   }
 
+  const createApplicationMutation = useCreateApplicationMutation();
+
+  const onSubmitApplication = (data: FormValues) => {
+    try {
+      createApplicationMutation.mutate(data);
+    } catch (err: any) {
+      setError(err);
+    }
+  };
+
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <span className="text-base font-semibold">
-                  <span className="sidebar-expanded-only">RoleMap.</span>
-                </span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarTrigger />
-      </SidebarHeader>
-      <SidebarContent>
-        <div className="px-2 py-3">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <SidebarMenuButton className="w-full gap-2" variant="default">
-                  <Plus className="h-4 w-4" />
-                  <span className="sidebar-expanded-only">Application</span>
-                </SidebarMenuButton>
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                sideOffset={5}
-                className="bg-popover text-popover-foreground rounded-md px-3 py-1.5 text-sm font-medium shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data[side=bottom]:slide-in-from-top-2"
+    <>
+      {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className="data-[slot=sidebar-menu-button]:!p-1.5"
               >
-                <p>New Application</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-      </SidebarContent>
-      <SidebarFooter className="mb-4">
-        <NavUser user={data.user} />
-      </SidebarFooter>
-    </Sidebar>
+                <a href="#">
+                  <span className="text-base font-semibold">
+                    <span className="sidebar-expanded-only">RoleMap.</span>
+                  </span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarTrigger />
+        </SidebarHeader>
+        <SidebarContent>
+          <div className="px-2 py-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SidebarMenuButton
+                    className="w-full gap-2"
+                    variant="default"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="sidebar-expanded-only">Application</span>
+                  </SidebarMenuButton>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  sideOffset={5}
+                  className="bg-popover text-popover-foreground rounded-md px-3 py-1.5 text-sm font-medium shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data[side=bottom]:slide-in-from-top-2"
+                >
+                  <p>New Application</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <NavMain items={data.navMain} />
+          <NavDocuments items={data.documents} />
+        </SidebarContent>
+        <SidebarFooter className="mb-4">
+          <NavUser user={data.user} />
+        </SidebarFooter>
+      </Sidebar>
+      {isModalOpen && (
+        <ApplicationCreateModal
+          isOpen={isModalOpen}
+          setIsOpen={setIsModalOpen}
+          onSave={(data) => onSubmitApplication(data)}
+        />
+      )}
+    </>
   );
 }

@@ -312,3 +312,4 @@ def test_delete_application(client, logged_in_user):
     )
 
     assert response.status_code == 404
+

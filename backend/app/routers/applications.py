@@ -26,9 +26,14 @@ def create_application(
       status_code=status.HTTP_409_CONFLICT,
       detail="Warning: You may have already applied for this role at this company previously"
     )
-  
+
+  application_data = application.model_dump()
+
+  if "status" in application_data:
+     application_data['status'] = application_data['status'].lower()
+
   db_application = models.Application(
-    **application.model_dump(),
+    **application_data,
     user_id = current_user.id
   )
 

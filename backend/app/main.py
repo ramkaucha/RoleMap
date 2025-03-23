@@ -10,15 +10,14 @@ VERSION = "1.0.0"
 
 app = FastAPI(
     title="Application Tracker API",
-    description="API for Jobtrckr",
+    description="API for RoleMap",
     version=VERSION
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    # allow_origins=["http://localhost:3000"], # frontend url
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

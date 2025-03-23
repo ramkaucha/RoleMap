@@ -30,3 +30,20 @@ def get_most_common(db: Session, user_id: int, field: str) -> str:
 
     return result[0] if result else None
 
+def get_total_applications(db: Session, user_id: int) -> int:
+    result = db.query(models.Application).filter(models.Application.user_id == user_id).count()
+
+    return result
+
+def get_offer_rate(db: Session, user_id: int) -> int:
+    result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status.in_(["OFFERED"])).count()
+    total = db.query(models.Application).filter(models.Application.user_id == user_id).count()
+
+    return result // total
+
+def get_interview_rate(db: Session, user_id: int) -> int:
+    result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == "INTERVIEWING").count()
+    total = get_total_applications(db, user_id)
+
+    return result // total
+

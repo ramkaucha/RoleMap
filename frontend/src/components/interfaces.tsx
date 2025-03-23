@@ -1,4 +1,10 @@
-type ButtonVariants = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+type ButtonVariants =
+  | 'default'
+  | 'destructive'
+  | 'outline'
+  | 'secondary'
+  | 'ghost'
+  | 'link';
 
 export interface PageItem {
   name: string;
@@ -27,11 +33,22 @@ export interface LoginFormData {
 }
 
 export enum ProfilePictureType {
-  LOCAL = "local",
-  URL = "url",
-  S3 = "s3",
+  LOCAL = 'local',
+  URL = 'url',
+  S3 = 's3',
 }
 
 export interface RegisterFormProps {
   setError: (error: string) => void;
+}
+
+export interface ApplicationFormData {
+  company: string;
+  role: string;
+  status: string;
+  location: string;
+  link: string;
+  comments: string;
+  category: string;
+  date_applied: string;
 }

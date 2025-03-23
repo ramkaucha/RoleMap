@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Link, User } from 'lucide-react';
@@ -48,7 +50,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// Define the form schema
 const formSchema = z.object({
   company: z.string().min(1, { message: 'Company name is required' }),
   role: z.string().min(1, { message: 'Role is required' }),
@@ -83,7 +84,6 @@ export function ApplicationDetailsModal({
 }: ApplicationDetailsModalProps) {
   const [activeTab, setActiveTab] = useState('details');
 
-  // Status options for the dropdown
   const statusOptions = [
     'Applied',
     'Screening',
@@ -94,7 +94,6 @@ export function ApplicationDetailsModal({
     'Withdrawn',
   ];
 
-  // Method options for the dropdown
   const methodOptions = [
     'Company Website',
     'LinkedIn',
@@ -105,7 +104,6 @@ export function ApplicationDetailsModal({
     'Other',
   ];
 
-  // Setup form with default values from the application
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

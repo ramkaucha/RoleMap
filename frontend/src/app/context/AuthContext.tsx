@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import axios from "axios";
-import { createContext, useContext, useState, useEffect } from "react";
-import { BACKEND_URL } from "../config/pages";
-import { useRouter } from "next/navigation";
-import { Loader2, Router } from "lucide-react";
+import axios from 'axios';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/pages';
+import { useRouter } from 'next/navigation';
+import { Loader2, Router } from 'lucide-react';
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -30,10 +30,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const getCurrentUser = async () => {
-    const storedToken = localStorage.getItem("Jobtrkr_token");
+    const storedToken = localStorage.getItem('access_token');
     if (!storedToken) {
       setIsLoading(false);
-      // router.replace("/auth/login");
+      router.push('/auth/login');
       return;
     }
 
@@ -62,15 +62,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (newToken: string) => {
     setToken(newToken);
-    localStorage.setItem("Jobtrkr_token", newToken);
+    localStorage.setItem('access_token', newToken);
     getCurrentUser();
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem("Jobtrkr_token");
-    router.replace("/auth/login");
+    localStorage.removeItem('Jobtrkr_token');
+    router.replace('/auth/login');
   };
 
   if (!mounted) {
@@ -86,7 +86,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!token, token, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated: !!token, token, user, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -28,7 +28,6 @@ interface NavProps {
 interface UserType {
   name: string;
   email: string;
-  avatar: string;
 }
 
 export function NavUser({ user }: { user: UserType }) {
