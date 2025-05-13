@@ -57,17 +57,26 @@ async def register(
   db.add(db_user)
   db.commit()
   db.refresh(db_user)
+  
+  # TODO: Commenting to remove verification under development
+  # background_tasks.add_task(
+  #  send_verification_email,
+  #  email=user.email,
+  #  token=verification_token
+  #)
 
-  background_tasks.add_task(
-    send_verification_email,
-    email=user.email,
-    token=verification_token
-  )
+  # HACK: Remove this after development !! Skips verification
+
+  user = db.query(models.User).filter(models.User.verification_token == verification_token).first()
+
+  if not user:
+     raise HTTPException(status_code=404, detail="User not found")
+  
+  user.is_verified = True
+  user.verification_token = None
+  db.commit()
 
   return db_user
-  # return {
-  #   "description": "User successfully created"
-  # }
 
 @router.post("/token", response_model=schemas.Token,
     summary="Login a user",

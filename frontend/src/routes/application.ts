@@ -40,6 +40,9 @@ export const useCreateApplicationMutation = () => {
         err.response?.data?.detail ||
         err.message ||
         'An error occurred during creating application';
+
+      console.log(err);
+
       if (errorMessage.length > 1) {
         errorMessage = 'An error occurred during creating application';
       }
@@ -67,6 +70,36 @@ export const useGetDashboardSummary = () => {
         'An error occurred during getting summary';
       if (errorMessage.length > 1) {
         errorMessage = 'An error occurred during getting summary for dashboard';
+      }
+
+      throw new Error(err);
+    },
+  });
+};
+
+/*
+ * Calling backend to get list of applications
+ */
+export const useGetApplicationList = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axios.get(`${BACKEND_URL}/applications`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      return response.data;
+    },
+    onError: (err: any) => {
+      let errorMessage =
+        err.response?.data?.detail ||
+        err.message ||
+        'An error occured during getting the list of applications';
+
+      if (errorMessage.length > 1) {
+        errorMessage =
+          'An error occured during getting the list of applications';
       }
 
       throw new Error(err);

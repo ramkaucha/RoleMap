@@ -73,7 +73,11 @@ export const useRegistrationMutation = () => {
     onSuccess: (_, variables) => {
       sessionStorage.setItem('registration_email', variables.email);
       sessionStorage.setItem('registration_timestamp', Date.now().toString());
-      router.push(`/auth/verify?email=${encodeURIComponent(variables.email)}`);
+
+      router.push('/auth/login');
+
+      // TODO: Uncomment when bringing back verification
+      // router.push(`/auth/verify?email=${encodeURIComponent(variables.email)}`);
     },
     onError: (error: any) => {
       let errorMessage =
@@ -81,6 +85,7 @@ export const useRegistrationMutation = () => {
         error.message ||
         'An error occurred during registration';
 
+      console.log(errorMessage);
       if (errorMessage.length > 1) {
         errorMessage = 'An error occurred during registration';
       }

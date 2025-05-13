@@ -33,7 +33,6 @@ def get_most_common(db: Session, user_id: int, field: str) -> str:
 
 def get_total_applications(db: Session, user_id: int) -> int:
     result = db.query(models.Application).filter(models.Application.user_id == user_id).count()
-
     return result
 
 # def get_offer_rate(db: Session, user_id: int) -> int:
@@ -48,6 +47,9 @@ def get_total_applications(db: Session, user_id: int) -> int:
 def get_interview_rate(db: Session, user_id: int) -> int:
     result = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == ApplicationStatus.INTERVIEWING).count()
     total = get_total_applications(db, user_id)
+    
+    if int(total) == 0:
+        total = 1
 
     return result // total
 

@@ -31,7 +31,7 @@ app.include_router(analytic.router)
 async def root():
     """Root endpoint"""
     return {
-        "message": "Welcome to Jobtrcker's API",
+        "message": "Welcome to RoleMap's API",
         "version": VERSION,
         "documentation": "/docs"
     }

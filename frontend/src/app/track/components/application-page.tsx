@@ -5,13 +5,25 @@ import ApplicationTable from './application-table';
 import { Application } from '@/components/type/application';
 import { generateSampleApplications } from './generateSampleApplications';
 
-const sampleApplications = generateSampleApplications();
+import { useGetApplicationList } from '@/routes/application';
 
 export default function ApplicationPage() {
   const [data, setData] = useState<Application[]>([]);
 
+  const getApplicationList = useGetApplicationList();
+
   useEffect(() => {
-    setData(sampleApplications);
+    const fetchApplications = async () => {
+      try {
+        const res = await getApplicationList.mutateAsync();
+
+        setData(res.items);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchApplications();
   }, []);
 
   return (
