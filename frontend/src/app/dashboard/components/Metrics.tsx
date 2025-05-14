@@ -4,53 +4,82 @@ import { useGetDashboardSummary } from '@/routes/application';
 import { ArrowDown, ArrowUp, TrendingDown, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const exampleMetrics = [
-  {
-    name: 'Total Applications',
-    number: 19,
-    change: '10',
-    isPositive: true,
-    description: 'Trending up',
-  },
-  {
-    name: 'Active Applications',
-    number: 10,
-    change: '-10',
-    isPositive: false,
-    description: 'Trending Down',
-  },
-  {
-    name: 'Response Rate',
-    number: 2,
-    change: '10',
-    isPositive: true,
-    description: 'Trending up',
-  },
-  {
-    name: 'Interview Rate',
-    number: 12,
-    change: '10',
-    isPositive: true,
-    description: 'Trending up',
-  },
-  {
-    name: 'Offer Rate',
-    number: 2,
-    change: '10',
-    isPositive: true,
-    description: 'Trending up',
-  },
-];
+interface ApplicationStats {
+  active_applications: number;
+  applications_this_month: number;
+  interview_rate: number;
+  response_rate: number;
+  total_applications: number;
+}
+
+interface Metric {
+  name: string;
+  number: number;
+  change: string;
+  isPositive: boolean;
+  description: string;
+}
+
+const applySummary = (result: ApplicationStats) => {
+  const metric: Metric[] = [
+    {
+      name: 'Total Applications',
+      number: result.total_applications,
+      change: '10',
+      isPositive: true,
+      description: 'Trending up',
+    },
+    {
+      name: 'Active Applications',
+      number: result.active_applications,
+      change: '-10',
+      isPositive: false,
+      description: 'Trending Down',
+    },
+    {
+      name: 'Response Rate',
+      number: result.response_rate,
+      change: '10',
+      isPositive: true,
+      description: 'Trending up',
+    },
+    {
+      name: 'Interview Rate',
+      number: result.interview_rate,
+      change: '10',
+      isPositive: true,
+      description: 'Trending up',
+    },
+    {
+      name: 'Application This Month',
+      number: result.applications_this_month,
+      change: '10',
+      isPositive: true,
+      description: 'Trending up',
+    },
+  ];
+
+  return metric;
+};
 
 export default function MetricsList() {
-  const [metrics, setMetrics] = useState(exampleMetrics);
+  const [metrics, setMetrics] = useState<Metric[]>([]);
 
   const getDashboardSummary = useGetDashboardSummary();
 
   useEffect(() => {
-    const data = getDashboardSummary.mutateAsync();
+    const fetchDashboardSummary = async () => {
+      try {
+        const res = await getDashboardSummary.mutateAsync();
 
-    console.log(data);
+        const metric = applySummary(res);
+        setMetrics(metric);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchDashboardSummary();
   }, []);
 
   return (

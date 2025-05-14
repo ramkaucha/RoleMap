@@ -78,6 +78,36 @@ export const useGetDashboardSummary = () => {
 };
 
 /*
+ * Calling backend to get the number of applications for the current week
+ */
+export const useGetWeekApplication = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axios.get(`${BACKEND_URL}/analytics/week`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      return response.data;
+    },
+    onError: (err: any) => {
+      let errorMessage =
+        err.response?.data?.detail ||
+        err.message ||
+        'An error occured during getting weekly application numbers';
+
+      if (errorMessage.length > 1) {
+        errorMessage =
+          'An error occured during getting weekly application numbers';
+      }
+
+      throw new Error(err);
+    },
+  });
+};
+
+/*
  * Calling backend to get list of applications
  */
 export const useGetApplicationList = () => {
