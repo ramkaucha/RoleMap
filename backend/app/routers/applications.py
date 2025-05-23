@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
@@ -123,3 +124,45 @@ def delete_application(
     db.commit()
 
     return None
+
+@router.post("_multiple",  response_model=List[schemas.Application])
+def create_multiple_application(
+   applications: List[schemas.ApplicationCreate],
+   current_user: schemas.User,
+   db: Session = Depends(get_db)
+):
+  """Upload multiple applications"""
+
+  created_apps = []
+
+  for app in applications:
+    existing_application = db.query(models.Application).filter(
+      models.Application.user_id == current_user.id,
+      models.Application.company == app.company,
+      models.Application.role == app.role
+    ).first()
+
+    if existing_application:
+      pass
+      # raise HTTPException(
+      #     status_code=status.HTTP_409_CONFLICT,
+      #     detail="Warning: You may have already applied for this role at this company previously"
+      # )
+    application_data = app.model_dump()
+
+    if "status" in application_data:
+      application_data['status'] = application_data['status'].lower()
+
+    db_application = models.Application(
+      **application_data,
+      user_id = current_user.id
+    )
+    db.add(db_application)
+    created_apps.append(db_application)
+
+  db.commit()
+
+  for app in created_apps:
+    db.refresh(app)
+
+  return created_apps

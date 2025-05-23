@@ -29,3 +29,7 @@ def get_analytics_summary(current_user: models.User = Depends(auth.get_current_u
 def get_analytics_week(current_user: models.User = Depends(
         auth.get_current_user), db: Session = Depends(get_db)):
     return analytics.get_current_week_dates(db, current_user.id)
+
+@router.get("/status-distribution")
+def get_status_distribution(current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    return analytics.get_status_distribution(db, current_user.id)

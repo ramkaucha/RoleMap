@@ -1,22 +1,23 @@
-from datetime import datetime, date, timedelta
+from app.schemas import ApplicationStatus
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+from app import models
 
+def get_status_distribution(db: Session, user_id: int) -> list:
+    status_distribution = []
 
-def get_current_week_dates():
+    for status in ApplicationStatus:
+        num_status = db.query(models.Application).filter(models.Application.user_id == user_id, models.Application.status == status).count()
+        status_distribution.append({
+            'name': status.value.title(),
+            'value': num_status
+        })
 
-    today = date.today()
-    start_of_week = today - timedelta(days=today.weekday())
-
-    # tmp = """ "" """" . """date("2025-05-13 12:21:13.342+00")
-    # print(tmp)
-
-    for i in range(7):
-        current_date = start_of_week + timedelta(days=i)
-        current_date = current_date.strftime("%B %d")
-        print(current_date)
-
+    print(status_distribution)
+    return status_distribution
 
 def main():
-    get_current_week_dates()
+    get_status_distribution(1)
 
 
 if __name__ == "__main__":

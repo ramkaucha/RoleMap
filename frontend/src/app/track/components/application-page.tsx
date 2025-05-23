@@ -26,8 +26,10 @@ export default function ApplicationPage() {
     fetchApplications();
   }, []);
 
+  // TODO: if setData changes, we update the data from here
+
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen">
       <ApplicationTable data={data} setData={setData} />
     </div>
   );

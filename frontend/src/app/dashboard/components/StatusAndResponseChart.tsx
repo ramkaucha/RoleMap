@@ -1,9 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { useEffect, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../../components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+} from 'recharts';
+import { useGetStatusDistribution } from '@/routes/application';
 
 const statusDistributionData = [
   { name: 'Applied', value: 35 },
@@ -21,15 +40,40 @@ const responseTimeData = [
   { name: 'Retail', days: 7 },
 ];
 
+interface StatusDistribution {
+  name: string;
+  value: number;
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function StatusAndResponseChart() {
-  const [ rightChartTab, setRightChartTab ] = useState('status');
+  const [rightChartTab, setRightChartTab] = useState('status');
+  const [statusDistribution, setStatusDistribution] = useState<
+    StatusDistribution[]
+  >([]);
+
+  const getStatusDistribution = useGetStatusDistribution();
+  useEffect(() => {
+    const fetchStatusDistribution = async () => {
+      try {
+        const response = await getStatusDistribution.mutateAsync();
+
+        setStatusDistribution(response);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchStatusDistribution();
+  }, []);
   return (
     <Card>
       <CardHeader>
         <CardTitle>Application Analytics</CardTitle>
-        <CardDescription>Detailed insights into your job applications</CardDescription>
+        <CardDescription>
+          Detailed insights into your job applications
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="status" onValueChange={setRightChartTab}>
@@ -40,19 +84,26 @@ export default function StatusAndResponseChart() {
           <TabsContent value="status" className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie 
-                  data={statusDistributionData}
+                <Pie
+                  data={statusDistribution}
                   cx="50%"
                   cy="50%"
                   fill="#8884d8"
                   dataKey="value"
-                  label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  // label={({ name, percent }) =>
+                  //   `${name}: ${(percent * 100).toFixed(0)}%`
+                  // }
                 >
-                  {statusDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {statusDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value} applications`, 'Count']} />
+                <Tooltip
+                  formatter={(value) => [`${value} applications`, 'Count']}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -61,11 +112,13 @@ export default function StatusAndResponseChart() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={responseTimeData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5}}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis label={{ value: 'Days', angle: -90, position: 'insideLeft' }} />
+                <YAxis
+                  label={{ value: 'Days', angle: -90, position: 'insideLeft' }}
+                />
                 <Legend />
                 <Bar dataKey="days" fill="#82ca9d" />
               </BarChart>
@@ -77,15 +130,13 @@ export default function StatusAndResponseChart() {
           <div
             className={`h-2 w-2 rounded-full ${rightChartTab === 'status' ? 'bg-primary' : 'bg-gray-300'}`}
             onClick={() => setRightChartTab('status')}
-          >
-          </div>
+          ></div>
           <div
             className={`h-2 w-2 rounded-full ${rightChartTab === 'response' ? 'bg-primary' : 'bg-gray-300'}`}
             onClick={() => setRightChartTab('response')}
-          >
-          </div>
+          ></div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

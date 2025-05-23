@@ -86,6 +86,7 @@ export function AppSideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const createApplicationMutation = useCreateApplicationMutation();
 
+  // TODO: Example of Set error
   const onSubmitApplication = (data: FormValues) => {
     try {
       createApplicationMutation.mutate(data);

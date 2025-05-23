@@ -22,6 +22,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Application } from '@/components/type/application';
 import { columns } from './columns';
 import { fuzzyFilter } from './fuzzy-filters';
+import CSVReader from '@/components/csv-reader';
+import { FormValues } from './application-create-modal';
+import { useCreateMultipleApplicationMutation } from '@/routes/application';
 
 interface ApplicationTableProps {
   data: Application[];
@@ -84,22 +87,62 @@ export default function ApplicationTable({
     table.resetPageIndex();
   }, [globalFilter, table]);
 
+  const transformCSV = (record: Record<string, string>): FormValues | null => {
+    try {
+      const status = record.status?.toLowerCase();
+      const rawDate = record['date_applied'];
+
+      const [day, month, year] = rawDate ? rawDate.split('/') : [];
+      const fullYear = year?.length == 2 ? `20${year}` : year;
+      const parsedDate = rawDate
+        ? new Date(
+            `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+          )
+        : new Date();
+      return {
+        company: record.company,
+        role: record.role,
+        status: status as FormValues['status'],
+        location: record.location ?? '',
+        category: record.category ?? '',
+        link: record.link || '',
+        comments: record.comments ?? '',
+        date_applied: parsedDate,
+      };
+    } catch (err: any) {
+      console.error('Error transforming record:', record, err);
+      return null;
+    }
+  };
+
+  const createMultipleApplication = useCreateMultipleApplicationMutation();
+
+  const handleCSVSubmit = (rawData: Record<string, string>[]) => {
+    const transformed = rawData
+      .map(transformCSV)
+      .filter((r: any): r is FormValues => r !== null);
+
+    createMultipleApplication.mutateAsync(transformed);
+  };
+
   return (
-    <Card className="w-full mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl">{title}</CardTitle>
-        <div className="flex items-center gap-2">
+    <Card className="w-full mx-auto flex flex-col min-h-[80vh]">
+      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="w-full">
+          <CardTitle className="text-2xl">{title}</CardTitle>
           <Input
             placeholder="Search applications..."
             value={globalFilter ?? ''}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="max-w-sm"
+            className="max-w-sm mt-2"
           />
         </div>
+        <CSVReader onSubmitCSV={handleCSVSubmit} />
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="flex flex-col justify-between flex-1">
         <div className="rounded-md border w-full overflow-x-auto">
-          <Table className="w-full">
+          <Table className="w-full h-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

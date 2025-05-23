@@ -29,6 +29,7 @@ export const ApplicationStatus = {
   INTERVIEWING: 'Interviewing',
   REJECTED: 'Rejected',
   GHOSTED: 'Ghosted',
+  TO_APPLY: 'To Apply',
 };
 
 export const applicationStatusOptions = [
@@ -37,6 +38,7 @@ export const applicationStatusOptions = [
   'Interviewing',
   'Rejected',
   'Ghosted',
+  'To Apply',
 ];
 
 export interface ApplicationCreate {

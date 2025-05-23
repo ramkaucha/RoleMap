@@ -21,7 +21,7 @@ class ApplicationStatus(str, Enum):
     INTERVIEWING = "interviewing"
     REJECTED = "rejected"
     GHOSTED = "ghosted"
-    OFFERED = "offered"
+    TO_APPLY = 'to apply'
 
 class ProfilePictureType(str, Enum):
     LOCAL = 'local',
