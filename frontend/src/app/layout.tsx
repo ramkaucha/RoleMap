@@ -26,6 +26,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RoleMap",
   description: "Track your applications and get hired!",
+  icons: {
+    icon: "/logo.svg"
+  }
 };
 
 export default async function RootLayout({

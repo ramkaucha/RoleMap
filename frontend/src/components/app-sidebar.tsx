@@ -56,13 +56,8 @@ const data = {
   ],
   documents: [
     {
-      title: 'Documents',
-      url: '#',
-      icon: DatabaseIcon,
-    },
-    {
       title: 'Resume',
-      url: '#',
+      url: '/resume',
       icon: ClipboardListIcon,
     },
   ],

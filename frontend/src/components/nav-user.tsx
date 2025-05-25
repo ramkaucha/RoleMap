@@ -13,6 +13,7 @@ import {
 } from './ui/sidebar';
 import { useAuth } from '@/app/context/AuthContext';
 import { ChevronUp, LogOut, Settings, User2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface NavItem {
   title: string;
@@ -32,6 +33,12 @@ interface UserType {
 
 export function NavUser({ user }: { user: UserType }) {
   const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleClickSettings = () => {
+    router.push('/settings');
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -47,7 +54,9 @@ export function NavUser({ user }: { user: UserType }) {
             align="end"
             className="w-[--radix-popper-anchor-width] min-w-[160px] bg-white dark:bg-slate-800 rounded-md shadow-lg p-1.5 border border-gray-200 dark:border-slate-700"
           >
-            <DropdownMenuItem className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+            <DropdownMenuItem 
+              onClick={handleClickSettings}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>
