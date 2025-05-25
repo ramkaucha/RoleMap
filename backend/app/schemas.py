@@ -9,6 +9,16 @@ from enum import Enum
 class EmailVerification(BaseModel):
     token: str
 
+class Comment(BaseModel):
+    id: int
+    application_id: int
+    user_id: int
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -59,7 +69,6 @@ class ApplicationBase(BaseModel):
     status: str
     location: str
     link: str
-    comments: Optional[str] = None
     category: str
     date_applied: datetime
 
@@ -74,7 +83,7 @@ class UserCreate(UserBase):
     def validate_password(cls, v: str) -> str:
         if len(v) < 8:
             raise ValueError('Password must be more than 8 characters long')
-        
+
         if not re.search(r'[A-Z]', v):
             raise ValueError('Password must contain at least one uppercase letter')
         
@@ -95,6 +104,7 @@ class Application(ApplicationBase):
     user_id: int
     created_at: datetime
     updated_at: datetime
+    comments: Optional[list[Comment]] = []
 
     class Config:
         from_attributes = True
@@ -121,3 +131,5 @@ class ApplicationList(BaseModel):
 
     class Config:
         from_attributes = True
+
+

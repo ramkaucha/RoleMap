@@ -94,11 +94,11 @@ export const useGetWeekApplication = () => {
       let errorMessage =
         err.response?.data?.detail ||
         err.message ||
-        'An error occured during getting weekly application numbers';
+        'An error occurred during getting weekly application numbers';
 
       if (errorMessage.length > 1) {
         errorMessage =
-          'An error occured during getting weekly application numbers';
+          'An error occurred during getting weekly application numbers';
       }
 
       throw new Error(err);
@@ -124,11 +124,11 @@ export const useGetApplicationList = () => {
       let errorMessage =
         err.response?.data?.detail ||
         err.message ||
-        'An error occured during getting the list of applications';
+        'An error occurred during getting the list of applications';
 
       if (errorMessage.length > 1) {
         errorMessage =
-          'An error occured during getting the list of applications';
+          'An error occurred during getting the list of applications';
       }
 
       throw new Error(err);
@@ -193,6 +193,46 @@ export const useCreateMultipleApplicationMutation = () => {
     onError: (err: any) => {
       // TODO: Error case
       throw new Error(err);
+    },
+  });
+};
+
+export const useDeleteApplication = () => {
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await axios.delete(`${BACKEND_URL}/applications/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+    },
+    onError: (err: any) => {
+      // TODO: Error case
+      throw new Error(err);
+    },
+  });
+};
+
+export const useUpdateApplication = () => {
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: FormValues }) => {
+      const payload = {
+        ...data,
+        date_applied: data.date_applied.toISOString(),
+        link: data.application_url,
+      };
+
+      console.log(payload);
+      await axios.put(`${BACKEND_URL}/applications/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+    },
+    onError: (err: any) => {
+      // TODO: Update Error case
+      console.error(err);
     },
   });
 };

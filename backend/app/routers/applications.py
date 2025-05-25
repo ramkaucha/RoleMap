@@ -144,10 +144,6 @@ def create_multiple_application(
 
     if existing_application:
       pass
-      # raise HTTPException(
-      #     status_code=status.HTTP_409_CONFLICT,
-      #     detail="Warning: You may have already applied for this role at this company previously"
-      # )
     application_data = app.model_dump()
 
     if "status" in application_data:

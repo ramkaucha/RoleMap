@@ -2,37 +2,41 @@
 
 import { Application } from '@/components/type/application';
 import { ColumnDef } from '@tanstack/react-table';
-import { EditableCell } from './editable-cell';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ApplicationDetailsModal } from './application-detail-modal';
 
-export const columns: ColumnDef<Application>[] = [
+export const columns = (
+  openModal: (app: Application) => void
+): ColumnDef<Application>[] => [
   {
     accessorKey: 'company',
     header: 'Company',
-    cell: EditableCell,
+    cell: (info) => info.getValue(),
   },
   {
     accessorKey: 'role',
     header: 'Role',
-    cell: EditableCell,
+    cell: (info) => info.getValue(),
   },
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: EditableCell,
+    cell: (info) => {
+      const value = info.getValue() as string;
+      return value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
+    },
   },
   {
     accessorKey: 'location',
     header: 'Location',
-    cell: EditableCell,
+    cell: (info) => info.getValue(),
   },
   {
     accessorKey: 'category',
     header: 'Category',
-    cell: EditableCell,
+    cell: (info) => info.getValue(),
   },
   {
     accessorKey: 'date_applied',
@@ -43,28 +47,15 @@ export const columns: ColumnDef<Application>[] = [
     id: 'actions',
     header: 'Actions',
     cell: ({ row }) => {
-      const [isModalOpen, setIsModalOpen] = useState(false);
       const application = row.original;
-
       return (
-        <>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Details
-          </Button>
-
-          {isModalOpen && (
-            <ApplicationDetailsModal
-              application={application}
-              isOpen={isModalOpen}
-              setIsOpen={setIsModalOpen}
-              onSave={() => console.log('save')}
-            />
-          )}
-        </>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => openModal(application)}
+        >
+          Details
+        </Button>
       );
     },
   },

@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
+from app.main import app, models
 from app.database import get_db
 from datetime import datetime
 from unittest.mock import patch, MagicMock
@@ -13,7 +13,7 @@ EXAMPLE_APPLICATION = {
     "status": "applied",
     "location": "Sydney",
     "link": "www.ramkaucha.com",
-    "comments": "",
+    "comments": [],
     "category": "Internship",
     "date_applied": "2024-12-22T23:43:24.435Z"
 }
@@ -29,17 +29,6 @@ def mock_fastmail():
     with patch('app.utils.email.FastMail', return_value=mock_fm):
         yield mock_fm
 
-# @pytest.fixture(autouse=True)
-# def mock_email_system():
-#     async def mock_send_email(email: str, token: str):
-#         return None
-
-#     async def mock_fastmail_send(*args, **kwargs):
-#         return None
-
-#     with patch('app.utils.email.send_verification_email', side_effect=mock_send_email) as email_mock, \
-#          patch('fastapi_mail.FastMail.send_message', side_effect=mock_fastmail_send) as fastmail_mock:
-#         yield (email_mock, fastmail_mock)
 
 @pytest.fixture
 def client(db, TestingSessionLocal):
@@ -57,15 +46,21 @@ def client(db, TestingSessionLocal):
 
 # Helper function to register a user to database
 @pytest.fixture
-def registered_user(client):
+def registered_user(client, TestingSessionLocal):
     user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": "Bob", "last_name": "Kazumi"}
     response = client.post('/auth/register', json=user_data)
     assert response.status_code == 200
 
-    token = response.json().get('verification_token')
+    db = TestingSessionLocal()
+    user = db.query(models.User).filter(models.User.email == user_data['email']).first()
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+    db.close()
 
-    verify_response = client.get(f'/auth/verify-email?token={token}')
-    assert verify_response.status_code == 200
+    # token = response.json().get('verification_token')
+    # verify_response = client.get(f'/auth/verify-email?token={token}')
+    # assert verify_response.status_code == 200
     return user_data
 
 @pytest.fixture
@@ -149,7 +144,7 @@ def test_get_applications(client, logged_in_user):
             "status": "APPLIED",
             "location": f"Sydney {i}",
             "link": f"www.ramkaucha.com {i}",
-            "comments": "",
+            "comments": [],
             "category": f"Internship {i}",
             "date_applied": datetime.now().isoformat()
         } for i in range(60)

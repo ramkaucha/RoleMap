@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Link, User } from 'lucide-react';
+import { Calendar as CalendarIcon, Link } from 'lucide-react';
 import { Application } from '@/components/type/application';
-import { cn } from '@/lib/utils';
 
 import {
   Dialog,
@@ -39,16 +38,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  useDeleteApplication,
+  useUpdateApplication,
+} from '@/routes/application';
+import ApplicationTable from './application-table';
 
 const formSchema = z.object({
   company: z.string().min(1, { message: 'Company name is required' }),
@@ -74,6 +72,7 @@ interface ApplicationDetailsModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   onSave: (data: FormValues) => void;
+  onDelete: (id: number) => void;
 }
 
 export function ApplicationDetailsModal({
@@ -81,17 +80,19 @@ export function ApplicationDetailsModal({
   isOpen,
   setIsOpen,
   onSave,
+  onDelete,
 }: ApplicationDetailsModalProps) {
   const [activeTab, setActiveTab] = useState('details');
+  const deleteApplication = useDeleteApplication();
+  const updateApplication = useUpdateApplication();
 
   const statusOptions = [
-    'Applied',
-    'Screening',
-    'Interview',
-    'Assessment',
-    'Offer',
-    'Rejected',
-    'Withdrawn',
+    'applied',
+    'online assessment',
+    'interviewing',
+    'rejected',
+    'ghosted',
+    'to apply',
   ];
 
   const methodOptions = [
@@ -121,10 +122,40 @@ export function ApplicationDetailsModal({
   });
 
   // Handle form submission
-  function onSubmit(data: FormValues) {
-    onSave(data);
+  const onSubmit = (data: FormValues) => {
     setIsOpen(false);
-  }
+    try {
+      updateApplication.mutate(
+        { id: application.id, data },
+        {
+          onSuccess: () => {
+            onSave(data);
+          },
+          onError: (err) => {
+            console.error(err);
+          },
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = () => {
+    setIsOpen(false);
+    try {
+      deleteApplication.mutate(application.id, {
+        onSuccess: () => {
+          onDelete(application.id);
+        },
+        onError: (err) => {
+          console.error(err);
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -153,7 +184,7 @@ export function ApplicationDetailsModal({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
                     name="company"
@@ -190,7 +221,7 @@ export function ApplicationDetailsModal({
                         <FormLabel>Status</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -214,36 +245,19 @@ export function ApplicationDetailsModal({
                     control={form.control}
                     name="date_applied"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
+                      <FormItem>
                         <FormLabel>Date Applied</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={'outline'}
-                                className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            value={
+                              field.value?.toISOString().split('T')[0] || ''
+                            }
+                            onChange={(e) =>
+                              field.onChange(new Date(e.target.value))
+                            }
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -307,7 +321,7 @@ export function ApplicationDetailsModal({
                     )}
                   />
 
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="application_method"
                     render={({ field }) => (
@@ -333,33 +347,16 @@ export function ApplicationDetailsModal({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="recruiter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Recruiter</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center space-x-2">
-                            <Input {...field} />
-                            <User className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  /> */}
                 </div>
 
                 <DialogFooter>
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() => setIsOpen(false)}
+                    variant="destructive"
+                    onClick={handleDelete}
                   >
-                    Cancel
+                    Delete
                   </Button>
                   <Button type="submit">Save Changes</Button>
                 </DialogFooter>
@@ -409,7 +406,7 @@ export function ApplicationDetailsModal({
             </Card>
           </TabsContent>
 
-          <TabsContent value="upcoming" className="mt-4">
+          {/* <TabsContent value="upcoming" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>Upcoming Events</CardTitle>
@@ -439,7 +436,7 @@ export function ApplicationDetailsModal({
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </DialogContent>
     </Dialog>

@@ -25,6 +25,7 @@ import { fuzzyFilter } from './fuzzy-filters';
 import CSVReader from '@/components/csv-reader';
 import { FormValues } from './application-create-modal';
 import { useCreateMultipleApplicationMutation } from '@/routes/application';
+import { ApplicationDetailsModal } from './application-detail-modal';
 
 interface ApplicationTableProps {
   data: Application[];
@@ -42,10 +43,18 @@ export default function ApplicationTable({
     pageIndex: 0,
     pageSize: 7,
   });
+  const [selectedApplication, setSelectedApplication] =
+    useState<Application | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = (application: Application) => {
+    setSelectedApplication(application);
+    setIsModalOpen(true);
+  };
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columns(openModal),
     filterFns: {
       fuzzy: fuzzyFilter,
     },
@@ -59,21 +68,6 @@ export default function ApplicationTable({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    meta: {
-      updateData: (rowIndex: number, columnId: string, value: any) => {
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          })
-        );
-      },
-    },
   });
 
   const getRowStyles = (status: string) => {
@@ -238,6 +232,28 @@ export default function ApplicationTable({
           </div>
         </div>
       </CardContent>
+
+      {selectedApplication && (
+        <ApplicationDetailsModal
+          application={selectedApplication}
+          isOpen={isModalOpen}
+          setIsOpen={setIsModalOpen}
+          onSave={(updatedApplication) => {
+            setData((prev) =>
+              prev.map((app) =>
+                app.id === selectedApplication?.id
+                  ? { ...app, ...updatedApplication }
+                  : app
+              )
+            );
+            setIsModalOpen(false);
+          }}
+          onDelete={(id) => {
+            setData((prev) => prev.filter((app) => app.id !== id));
+            setIsModalOpen(false);
+          }}
+        />
+      )}
     </Card>
   );
 }

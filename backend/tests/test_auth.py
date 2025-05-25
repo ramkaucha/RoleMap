@@ -1,22 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
+from app.main import app, models
 from app.database import get_db
 import time
 from unittest.mock import patch, MagicMock
 from fastapi_mail import FastMail, ConnectionConfig
-
-# @pytest.fixture(autouse=True)
-# def mock_email_system():
-#     async def mock_send_email(email: str, token: str):
-#         return None
-    
-#     async def mock_fastmail_send(*args, **kwargs):
-#         return None
-    
-#     with patch('app.utils.email.send_verification_email', side_effect=mock_send_email) as email_mock, \
-#         patch('fastapi_mail.FastMail.send_message', side_effect=mock_fastmail_send) as fastmai_mock:
-#         yield (email_mock, fastmai_mock)
 
 @pytest.fixture(autouse=True)
 def mock_fastmail():
@@ -45,16 +33,21 @@ def client(db, TestingSessionLocal):
 
 # Helper function to register a user to database
 @pytest.fixture
-def registered_user(client):
+def registered_user(client, TestingSessionLocal):
     user_data = { "email": "test@example.com", "password": "StrongPassword123!@#", "first_name": 'Bob', "last_name": "Kuzami"}
     response = client.post('/auth/register', json=user_data)
-    
     assert response.status_code == 200
-    
-    token = response.json().get('verification_token')
 
-    verify_response = client.get(f'/auth/verify-email?token={token}')
-    assert verify_response.status_code == 200
+    db = TestingSessionLocal()
+    user = db.query(models.User).filter(models.User.email == user_data['email']).first()
+    user.is_verified = True
+    user.verification_token = None
+    db.commit()
+    db.close()
+    # token = response.json().get('verification_token')
+
+    # verify_response = client.get(f'/auth/verify-email?token={token}')
+    # assert verify_response.status_code == 200
 
     return user_data
 

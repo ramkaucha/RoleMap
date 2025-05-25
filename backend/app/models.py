@@ -45,7 +45,6 @@ class Application(Base):
     status = Column(SQLAlchemyEnum(schemas.ApplicationStatus))
     location = Column(String)
     link = Column(String)
-    comments = Column(String, nullable=True)
     category = Column(String)
     date_applied = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -54,4 +53,16 @@ class Application(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User", back_populates="applications")
-    
+    comments = relationship("Comment", back_populates="application", cascade="all, delete-orphan", lazy="selectin")
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    application_id = Column(Integer, ForeignKey("applications.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    content = Column(String)
+    created_at = Column(DateTime(timezone=True))
+
+    application = relationship("Application", back_populates="comments")
+    user = relationship("User")
