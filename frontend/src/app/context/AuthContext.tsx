@@ -1,16 +1,16 @@
 'use client';
 
 import axios from 'axios';
-import { createContext, useContext, useState, useEffect } from 'react';
-import { BACKEND_URL } from '../config/pages';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Router } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { BACKEND_URL } from '../config/pages';
 
 type AuthContextType = {
   isAuthenticated: boolean;
   token: string | null;
   user: any | null;
-  login: (token: string) => void;
+  login: (token: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -18,69 +18,79 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   token: null,
   user: null,
-  login: () => {},
+  login: async () => {},
   logout: () => {},
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
-  const getCurrentUser = async () => {
-    const storedToken = localStorage.getItem('access_token');
-    if (!storedToken) {
-      setIsLoading(false);
-      router.push('/auth/login');
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${BACKEND_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      });
-      setUser(response.data);
-      setToken(storedToken);
-      setIsLoading(false);
-    } catch (error) {
-      logout();
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    setMounted(true);
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    getCurrentUser();
-  }, [mounted]);
+    if (!isMounted) return;
 
-  const login = (newToken: string) => {
+    const fetchUser = async () => {
+      const storedToken = localStorage.getItem('access_token');
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${BACKEND_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        });
+        setToken(storedToken);
+        setUser(response.data);
+      } catch {
+        logout();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [isMounted]);
+
+  const login = async (newToken: string) => {
     setToken(newToken);
     localStorage.setItem('access_token', newToken);
-    getCurrentUser();
+    await getCurrentUser();
+  };
+
+  const getCurrentUser = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      setUser(response.data);
+    } catch {
+      logout();
+    }
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('Jobtrkr_token');
+    localStorage.removeItem('access_token');
     router.replace('/auth/login');
   };
 
-  if (!mounted) {
-    return null;
-  }
-
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
-      <div className="flex-grow flex justify-center items-center min-h-screen">
-        <Loader2 className="h-20 w-20 animate-spin" />
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin" />
       </div>
     );
   }
@@ -92,6 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export const useAuth = () => useContext(AuthContext);

@@ -15,19 +15,20 @@ import { LoginFormData } from '@/components/interfaces';
 import ErrorAlert from '@/components/error-alert';
 import Link from 'next/link';
 import { useLoginMutation } from '@/routes/auth';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [error, setError] = useState<string | null>(null);
 
   const loginMutation = useLoginMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(process.env.NEXT_PUBLIC_API_URL);
     let { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -36,12 +37,23 @@ export default function LoginForm() {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
-      loginMutation.mutate(formData);
+      loginMutation.mutateAsync(formData);
     } catch (err: any) {
       setError(err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex-grow flex justify-center items-center max-h-screen">
+        <Loader2 className="h-20 w-20 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-grow flex flex-col w-full">

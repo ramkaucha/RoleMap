@@ -1,6 +1,8 @@
 'use client';
+import { useAuth } from '@/app/context/AuthContext';
 import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { ReactNode, useEffect } from 'react';
 
 const pageVariants = {
   initial: {
@@ -25,13 +27,26 @@ const pageVariants = {
   },
 };
 
-export default function PageWrapper({
+export function ProtectedPageWrapper({
   children,
   className = '',
 }: {
   children?: ReactNode;
   className?: string;
 }) {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/auth/login');
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <motion.div
       initial="initial"

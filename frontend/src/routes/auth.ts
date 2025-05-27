@@ -32,9 +32,8 @@ export const useLoginMutation = () => {
 
       return response.data;
     },
-    onSuccess: (data) => {
-      login(data.access_token);
-      router.push('/dashboard');
+    onSuccess: async (data) => {
+      await login(data.access_token);
     },
     onError: (error: any) => {
       let errorMessage =
@@ -46,6 +45,9 @@ export const useLoginMutation = () => {
       }
 
       throw new Error(errorMessage);
+    },
+    onSettled: () => {
+      router.push('/dashboard');
     },
   });
 };

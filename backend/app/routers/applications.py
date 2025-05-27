@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
 from ..database import get_db
@@ -162,3 +162,26 @@ def create_multiple_application(
     db.refresh(app)
 
   return created_apps
+
+
+@router.post("/upload-resume", status_code=201)
+def upload_resume(
+   file: UploadFile = File(...),
+   current_user: models.User = Depends(auth.get_current_user),
+   db: Session = Depends(get_db)
+):
+  """Store upload resume file
+
+  Args:
+      file (UploadFile, optional): _description_. Defaults to File(...).
+      current_user (models.User, optional): _description_. Defaults to Depends(auth.get_current_user).
+      db (Session, optional): _description_. Defaults to Depends(get_db).
+  """
+  contents = file.file.read()
+
+  filename = f"{current_user.id}_{file.filename}"
+  filepath = f"./uploads/resumes/{filename}"
+
+  with open(filepath, 'wb') as f:
+     f.write(contents)
+
