@@ -222,7 +222,6 @@ export const useUpdateApplication = () => {
         link: data.application_url,
       };
 
-      console.log(payload);
       await axios.put(`${BACKEND_URL}/applications/${id}`, payload, {
         headers: {
           'Content-Type': 'application/json',

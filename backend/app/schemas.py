@@ -34,8 +34,8 @@ class ApplicationStatus(str, Enum):
     TO_APPLY = 'to apply'
 
 class ProfilePictureType(str, Enum):
-    LOCAL = 'local',
-    URL = 'url',
+    LOCAL = 'local'
+    URL = 'url'
     S3 = 's3'
 
 class UserBase(BaseModel):
@@ -50,12 +50,12 @@ class UserBase(BaseModel):
     def validate_profile_picture(cls, v: Optional[str], values: dict) -> Optional[str]:
         if v is None:
             return v
-        
+
         pic_type = values.get('profile_picture_type')
         if pic_type == ProfilePictureType.URL:
-            if not v.startswith('http://', 'https://'):
+            if not v.startswith(('http://', 'https://')):
                 raise ValueError('URL must start with http:// or https://')
-        
+
         allowed_extensions = { '.jpg', '.jpeg', '.png', '.gif' }
         file_ext = v.lower().split('.')[-1]
         if not any(v.lower().endswith(ext) for ext in allowed_extensions):
@@ -105,6 +105,7 @@ class Application(ApplicationBase):
     created_at: datetime
     updated_at: datetime
     comments: Optional[list[Comment]] = []
+    notification_sent = Optional[datetime]
 
     class Config:
         from_attributes = True
@@ -133,3 +134,9 @@ class ApplicationList(BaseModel):
         from_attributes = True
 
 
+class Notification(BaseModel):
+    id: int
+    user_id: int
+    application_id: int
+    message: str
+    sent_at: datetime

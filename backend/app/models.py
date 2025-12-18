@@ -31,7 +31,7 @@ class User(Base):
 
     def verify_password(self, plain_password):
         return pwd_context.verify(plain_password, self.hashed_password)
-    
+
     @staticmethod
     def generate_verification_token():
         return secrets.token_urlsafe(32)
@@ -65,4 +65,16 @@ class Comment(Base):
     created_at = Column(DateTime(timezone=True))
 
     application = relationship("Application", back_populates="comments")
+    user = relationship("User")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    application_id = Column(Integer, ForeignKey("applications.id"))
+    message = Column(String)
+    sent_at = Column(DateTime(timezone=True))
+
+
     user = relationship("User")

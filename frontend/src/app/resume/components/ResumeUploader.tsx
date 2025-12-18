@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { BACKEND_URL } from '@/app/config/pages';
+import axios, { AxiosProgressEvent } from 'axios';
+import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 export default function ResumeUploader() {
@@ -10,7 +12,22 @@ export default function ResumeUploader() {
     const file = acceptedFiles[0];
     const formData = new FormData();
     formData.append('file', file);
-    console.log(file);
+    const token = localStorage.getItem('access_token');
+    try {
+      await axios.post(`${BACKEND_URL}/applications/upload-resume`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        onUploadProgress: (e: AxiosProgressEvent) => {
+          if (e.total) {
+            setProgress((e.loaded / e.total) * 100);
+          }
+        },
+      });
+      setTimeout(() => setProgress(0), 1000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });

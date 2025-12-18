@@ -1,13 +1,23 @@
 from typing import List
+import os
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
 from ..database import get_db
+from fastapi.responses import FileResponse
 
 router = APIRouter(
   prefix="/applications",
   tags=["Application"]
 )
+
+@router.get("/resume", response_class=FileResponse)
+def get_resume(current_user: models.User = Depends(auth.get_current_user)):
+   filepath = f"./uploads/resumes/user_{current_user.id}.pdf"
+   if not os.path.exists(filepath):
+      raise HTTPException(status_code=404, detail="Resume not found")
+
+   return FileResponse(path=filepath, media_type='application/pdf', filename='Resume.pdf')
 
 @router.post("", response_model=schemas.Application)
 def create_application(
@@ -179,9 +189,10 @@ def upload_resume(
   """
   contents = file.file.read()
 
-  filename = f"{current_user.id}_{file.filename}"
+  filename = f"user_{current_user.id}"
   filepath = f"./uploads/resumes/{filename}"
 
   with open(filepath, 'wb') as f:
      f.write(contents)
 
+  return {"filename": filename}
